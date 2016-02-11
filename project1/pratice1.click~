@@ -1,0 +1,9 @@
+//RatedSource([DATA, RATE, LIMIT, ACTIVE, KEYWORDS])
+
+//RatedSource(DATA "hello", RATE 1, LIMIT 1, STOP true) -> Print(DATA, CONTENTS ASCII)-> Discard;
+
+RatedSource(DATA "hello", RATE 1, LIMIT -1) -> Print(DATA, CONTENTS ASCII)-> Discard;
+
+
+
+
