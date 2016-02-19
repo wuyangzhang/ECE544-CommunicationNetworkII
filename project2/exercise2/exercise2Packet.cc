@@ -11,24 +11,29 @@
 #include "exercise2Packet.hh"
 
 CLICK_DECLS
-Excercise2Packet::Excercise2Packet(){}
-Excercise2Packet::~Excercise2Packet(){}
+Exercise2Packet::Exercise2Packet(){}
+Exercise2Packet::~Exercise2Packet(){}
 
-int Excercise2Packet::configure(Vector<String> &conf, ErrorHandler *errh){
+int Exercise2Packet::configure(Vector<String> &conf, ErrorHandler *errh){
 	return 0;
 }
 
 
-void Excercise2Packet::push(int, Packet *p){
-  click_chatter("preparing receiving a pakcet");
-  click_chatter("receving a pakcet size %d", p->length());
+void Exercise2Packet::push(int, Packet *p){
   selfDefinedPacketHead *head = (selfDefinedPacketHead*) p->data();
-  click_chatter("receiving a packet type %d", head->type);
   selfDefinedPacketPayload *payLoad = (selfDefinedPacketPayload*)(head+1);
-  click_chatter("Receiving a packet content %s", payLoad->payload);
+  click_chatter("Receiving packet content:  %s", payLoad->payload);
+  if(head->type == 0){
+    output(0).push(p);
+    click_chatter("Sending a packet with TYPE %d to PORT 0", head->type);
+  }
+  if(head->type == 1){
+    output(1).push(p);
+    click_chatter("Sending a packet with TYPE %d to PORT 1", head->type);
 
+  }
   return;
 }
 
 CLICK_ENDDECLS
-EXPORT_ELEMENT(Excercise2Packet)
+EXPORT_ELEMENT(Exercise2Packet)

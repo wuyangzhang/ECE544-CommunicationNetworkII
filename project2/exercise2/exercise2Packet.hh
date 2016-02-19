@@ -16,8 +16,8 @@ public:
 
     Exercise2Packet();
 	~Exercise2Packet();
-	const char *class_name() const {return "ExercisePacket";}
-	const char *port_count() const {return "1/1";}
+	const char *class_name() const {return "Exercise2Packet";}
+	const char *port_count() const {return "1/2";}
 	const char *processing() const {return PUSH;}
 	int configure(Vector<String>&, ErrorHandler*);
     void push(int, Packet* p);
