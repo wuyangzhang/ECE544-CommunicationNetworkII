@@ -2,6 +2,8 @@
 #define CLICK_SIMPLEAGNOSTICELEMENT_HH
 
 #include<click/element.hh>
+#include<click/timer.hh>
+#include<click/timestamp.hh>
 CLICK_DECLS
 
 class SimpleAgnosticElement : public Element{
