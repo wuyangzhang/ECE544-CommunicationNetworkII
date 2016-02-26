@@ -1,0 +1,18 @@
+<omlc id='click_mon' exp_id='mf-click-mon-test'>
+  <collect url='tcp://oml'>
+    <stream name='packet_stats' mp='packet_stats' samples='1'>
+    </stream>
+    <stream name='routing_stats' mp='routing_stats' samples='1'>
+    </stream>
+    <stream name='link_stats' mp='link_stats' samples='1'>
+    </stream>
+  </collect>
+  <collect url='file:/var/log/mf-click-mon.db'>
+    <stream name='packet_stats_file' mp='packet_stats' samples='1'>
+    </stream>
+    <stream name='routing_stats_file' mp='routing_stats' samples='1'>
+    </stream>
+    <stream name='link_stats_file' mp='link_stats' samples='1'>
+    </stream>
+  </collect>
+</omlc>

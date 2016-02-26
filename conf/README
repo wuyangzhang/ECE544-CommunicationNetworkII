@@ -1,0 +1,62 @@
+Basic router configurations:
+---------------------------
+
+MF_BasicRouter.click
+    - single interface: 'core'
+    - GSTAR control plane
+    - 'storage' enabled in data plane
+    - No GNRS resolution, only flat GUID-based forwarding
+
+MF_MultiRouter.click
+    - single interface: 'core'
+    - supports GNRS lookups for packets with no NA
+
+MF_MultiRouter.click
+    - single interface: 'core'
+    - supports GNRS lookups
+    - adds multi-delivery services to MFR:
+        - anycast, multi-homing, multicast...
+
+MF_AccessMultiRouter.click
+    - builds on MultiRouter to support host access
+	- core, edge interfaces for client access 
+	- handles client association.
+	- assumes client speaks MF at L3
+
+MF_IPAccessMultiRouter.click
+    - builds on MultiRouter to support host access over IPv4 links
+	- same as access rtr above, along with ...
+	- supports client to access rtr IP tunnel (fragmented MF L3 chunks encap in IPv4 packets)
+	    - uses IP proto = 5 to designate MF over IPv4
+	    - encaps/decaps IPv4 headers for hosts connecting over edge iface
+
+Test configurations:
+----------------------
+test/MF_FileSender.click
+	- generates data chunks of given size from specified local file 
+        - can specify packet size that chunks are fragmented to at L2
+        - delays secs before transmision begins
+
+test/MF_FileReceiver.click
+	- receives and writes chunks to file on local disk
+        - random generation of file names
+
+test/MF_ChunkSender.click
+        - generates and transmits N dummy chunks of given size
+	- support for inter-chunk spacing (msec)
+        - can specify packet size that chunks are fragmented to at L2
+        - delays secs before transmision begins
+
+test/MF_ChunkReceiver.click
+	- receives, logs(w/ timestamps) and consumes chunks
+
+test/MF_FileSenderIPAccessMultiRouter.click
+	- same as sender above with additional access functions
+	- supports 2 interfaces (core and edge) 
+	- IP-encap/decap MF pkts at the edge link
+    - any number of hosts/clients can attach to edge interface
+
+test/GNRS_InterfaceTest.click
+    - generates internal insert/lookup requests to MF_ReqRespHandler
+    - MF_ReqRespHandler will in turn interact with configured GNRS server
+    - delay between requests and server/client endpoints can be configured
