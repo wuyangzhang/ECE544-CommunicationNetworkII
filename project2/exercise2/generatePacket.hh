@@ -1,12 +1,12 @@
-#ifndef CLICK_SIMPLEAGNOSTICELEMENT_HH
-#define CLICK_SIMPLEAGNOSTICELEMENT_HH
+#ifndef CLICK_GENERATEPACKET_HH
+#define CLICK_GENERATEPACKET_HH
 
 #include<click/element.hh>
 #include<click/timer.hh>
 #include<click/timestamp.hh>
 CLICK_DECLS
 
-class SimpleAgnosticElement : public Element{
+class GeneratePacket : public Element{
 public:
 	struct selfDefinedPacketHead{
 		uint8_t type;
@@ -15,9 +15,9 @@ public:
 	struct selfDefinedPacketPayload{
 		const char* payload;
 	};
-	SimpleAgnosticElement();
-	~SimpleAgnosticElement();
-	const char *class_name() const {return "SimpleAgnosticElement";}
+	GeneratePacket();
+	~GeneratePacket();
+	const char *class_name() const {return "GeneratePacket";}
 	const char *port_count() const {return "1/1";}
 	const char *processing() const {return AGNOSTIC;}
 	int configure(Vector<String>&, ErrorHandler*);
