@@ -6,6 +6,13 @@ CLICK_DECLS
 
 class SimpleAgnosticElement : public Element{
 public:
+	struct selfDefinedPacketHead{
+		uint8_t type;
+		uint32_t length;
+	};
+	struct selfDefinedPacketPayload{
+		const char* payload;
+	};
 	SimpleAgnosticElement();
 	~SimpleAgnosticElement();
 	const char *class_name() const {return "SimpleAgnosticElement";}
@@ -14,8 +21,10 @@ public:
 	int configure(Vector<String>&, ErrorHandler*);
 	void push(int, Packet *);
 	Packet* pull(int);
+	void run_timer(Timer* timer);
 private:
 	uint32_t maxSize;
+	Timer _timer;
 
 };
 
