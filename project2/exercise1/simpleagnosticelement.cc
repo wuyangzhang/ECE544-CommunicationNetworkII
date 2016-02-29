@@ -27,16 +27,17 @@ int SimpleAgnosticElement::configure(Vector<String> &conf, ErrorHandler *errh){
 
 
 void SimpleAgnosticElement::push(int, Packet *p){
-	//click_chatter("Receiving a packet size %d", p->length());
+	click_chatter("Receiving a packet size %d", p->length());
 	int tailroom = 0;
 	int packetsize = sizeof(selfDefinedPacketHead) + sizeof(selfDefinedPacketPayload);
-	int headroom = sizeof(click_ip) + sizeof(click_tcp) + sizeof(click_ether);
+	//int headroom = sizeof(click_ip) + sizeof(click_tcp) + sizeof(click_ether);
+	int headroom = 0;
 	WritablePacket *packet = Packet::make(headroom, 0, packetsize, tailroom);
 	if(packet == 0) return click_chatter("ERROR: can not make packet!");
 	/* write the packet header */
 	selfDefinedPacketHead* header = (selfDefinedPacketHead*) packet->data();
 	header->type = 0;
-	header->length = size(selfDefinedPacketPayload);
+	header->length = sizeof(selfDefinedPacketPayload);
 	//int offsetToPayload = size(selfDefinedPacketHead);
 	selfDefinedPacketPayload *payLoad = (selfDefinedPacketPayload*)(header+1);
 	payLoad->payload = "I am selfDefinedPacketPayload";
@@ -61,12 +62,11 @@ Packet* SimpleAgnosticElement::pull(int){
 }
 
 void SimpleAgnosticElement::run_timer(Timer* t){
-	TimeStamp now = TimeStamp::now_steady();
+	Timestamp now = Timestamp::now_steady();
 	click_chatter("generate a new selfDefined packet at %{timestamp}\n", &now);
-	this.push(0, Packet *p);
+	Packet *p;
+	this->push(0,p);
 }
-void SimpleAgnosticElement::run_timer(Timer *timer){
 
-}
 CLICK_ENDDECLS
 EXPORT_ELEMENT(SimpleAgnosticElement)
