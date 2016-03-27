@@ -2,7 +2,7 @@
 // topology C1 -> R1 -> C2
 //					 -> C3
 
-require(library	/home/comnetsii/elements/lossyrouteport.click);
+require(library	/home/comnetsii/elements/lossyrouterport.click);
 
 define($dev1 veth1, $addrDev1 e2:e5:a8:a4:12:81)
 define($dev2 veth2, $addrDev2 4a:26:97:74:af:2c)
