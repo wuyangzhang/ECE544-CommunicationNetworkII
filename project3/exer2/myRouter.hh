@@ -25,7 +25,7 @@ class MyRouter : public Element {
         MyRouter();
         ~MyRouter();
         const char *class_name() const { return "MyRouter";}
-        const char *port_count() const { return "1-/1-";} /* each router has at least 1 port */
+        const char *port_count() const { return "3-/3-";} /* each router has at least 1 port */
         const char *processing() const { return PUSH; }
 	   
         void push(int, Packet *p);

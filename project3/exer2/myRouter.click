@@ -1,6 +1,6 @@
 // Router 
 // topology C1 -> R1 -> C2
-					 -> C3
+//					 -> C3
 
 require(library	/home/comnetsii/elements/routerport.click);
 
@@ -18,7 +18,7 @@ rp2::RouterPort(DEV $dev3, IN_MAC $addrDev3, OUT_MAC $addrDev4)
 rp3::RouterPort(DEV $dev5, IN_MAC $addrDev5, OUT_MAC $addrDev6)
 
 //define router that has 3 outputs. 
-myrouter::myRouter()
+myrouter::MyRouter()
 
 rp1->myrouter[0]->rp1
 rp2->myrouter[1]->rp2
