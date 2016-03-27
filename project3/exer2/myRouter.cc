@@ -22,7 +22,7 @@ void MyRouter::push(int port, Packet *p) {
 
     if(packetType == 0){
         /*router should forwarding the packet */
-        int forwardingPort = this->lookUpForwardingTable();
+        int forwardingPort = this->lookUpForwardingTable(out_addr);
         if(forwardingPort == -1){
             click_chatter("Can not find forwarding port for this destination!");
             p->kill();
@@ -33,7 +33,7 @@ void MyRouter::push(int port, Packet *p) {
 
 int MyRouter::lookUpForwardingTable(String destAddr){
     int matchPort = -1;
-    for(HashTable<int, String>::iterator it == this->forwardingTable.begin(); it; ++it){
+    for(HashTable<int, String>::iterator it = this->forwardingTable.begin(); it; ++it){
         if(it.value() == destAddr)
             matchPort = it.key();
     }
@@ -50,7 +50,7 @@ void MyRouter::updateForwardingTable(int port, String in_addr){
         this->forwardingTable.set(port, in_addr);
     else {
         if(this->forwardingTable.get(port) == in_addr)
-            /* do nothing */
+            /* do nothing */;
         else
             this->forwardingTable.replace(port, in_addr);
     }
