@@ -10,12 +10,14 @@ MyRouter::~MyRouter(){}
 
 void MyRouter::push(int port, Packet *p) {
     /* read the packet be pushed into the router, classify into: hello message, forwarding*/
+    click_chatter("[Router] receive packet from port %d", port);
     struct PacketHeader *format = (struct PacketHeader*) p->data();
     int packetType = format->type;
     String in_addr = format->srcAddr;
     String out_addr = format->destAddr;
     if(packetType == 2){
         /*this is a hello message, the router updates the routing table*/
+        click_chatter("[Router] update forwarding table");
         this->updateForwardingTable(port, in_addr);
         p->kill();
     }
@@ -28,6 +30,7 @@ void MyRouter::push(int port, Packet *p) {
             p->kill();
         }
         this->forwardingPacket(p, forwardingPort);
+        click_chatter("[Router] forwarding packet to port %d", forwardingPort);
     }
 }
 
