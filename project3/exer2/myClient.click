@@ -10,7 +10,7 @@ define($dev6 veth6, $addrDev6 92:9c:22:8a:f8:69)
 
 rp::RouterPort(DEV $dev1, IN_MAC $addrDev1, OUT_MAC $addrDev2)
 
-//rp->packetClient(SrcAddr 101, DestAddr 102)->rp
-rp->PacketClient()->rp
+rp->PacketClient(SrcAddr 101, DestAddr 102)->rp
+//rp->PacketClient()->rp
 
 
