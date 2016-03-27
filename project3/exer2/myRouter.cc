@@ -39,8 +39,8 @@ void MyRouter::push(int port, Packet *p) {
 
 int MyRouter::lookUpForwardingTable(uint32_t destAddr){
     int matchPort = -1;
-    for(HashTable<int, String>::iterator it = this->forwardingTable.begin(); it; ++it){
-      if(String::compare(it.value(), destAddr)==0)
+    for(HashTable<int, uint32_t>::iterator it = this->forwardingTable.begin(); it; ++it){
+      if(it.value() == destAddr)
             matchPort = it.key();
     }
     return matchPort;
@@ -55,7 +55,7 @@ void MyRouter::updateForwardingTable(int port, uint32_t in_addr){
     if(!this->forwardingTable[port]) /*port is not in the table*/
         this->forwardingTable.set(port, in_addr);
     else {
-      if(String::compare(this->forwardingTable.get(port),in_addr) == 0)
+      if(this->forwardingTable.get(port) == in_addr)
             /* do nothing */;
         else
             this->forwardingTable.set(port, in_addr);

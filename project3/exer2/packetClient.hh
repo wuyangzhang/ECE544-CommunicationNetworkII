@@ -27,8 +27,8 @@ class PacketClient : public Element {
         Timer _timer;
         uint32_t sequenceNumber;
         HashTable<uint32_t,bool> ackSequenceTable;
-        String srcAddr;
-        String destAddr;
+        uint32_t srcAddr;
+        uint32_t destAddr;
 }; 
 
 CLICK_ENDDECLS

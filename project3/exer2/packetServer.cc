@@ -14,7 +14,7 @@ int PacketServer::initialize(ErrorHandler *errh){
   return 0;
 }
 
-int PacketClient::configure(Vector<String>&conf, ErrorHandler *errh){
+int PacketServer::configure(Vector<String>&conf, ErrorHandler *errh){
     if(cp_va_kparse(conf, this, errh, 
       "SrcAddr", cpkM, cpUnsigned, &this->srcAddr, 
       cpEnd) < 0 )return -1;
@@ -34,8 +34,8 @@ void PacketServer::push(int, Packet *p) {
     /* revise type from 0 -> 1, sending out the ack message for a given sequenceNumber*/    
     format-> type = 1;
     /* exchange src and dest addr*/
-    String in_addr = format->srcAddr;
-    String out_addr = format->destAddr;
+    uint32_t in_addr = format->srcAddr;
+    uint32_t out_addr = format->destAddr;
     
     format->srcAddr = out_addr;
     format->destAddr = in_addr;

@@ -20,6 +20,7 @@ class PacketServer : public Element {
 	    void helloMessage();
 	private:
         Timer _timer;
+        uint32_t srcAddr;
 
 
 };
