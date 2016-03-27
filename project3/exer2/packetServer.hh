@@ -2,12 +2,14 @@
 #define CLICK_PACKETSERVER_HH 
 #include <click/element.hh>
 #include <click/hashtable.hh>
+#include <click/timer.hh>
+
 CLICK_DECLS
-class PacketServcer : public Element {
+class PacketServer : public Element {
     public:
-        PacketServcer();
-       ~PacketServcer(); 
-        const char *class_name() const { return "PacketServcer";}
+        PacketServer();
+       ~PacketServer(); 
+        const char *class_name() const { return "PacketServer";}
         const char *port_count() const { return "1/1";}
         const char *processing() const { return PUSH; }
 

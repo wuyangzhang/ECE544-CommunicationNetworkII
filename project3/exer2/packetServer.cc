@@ -3,20 +3,18 @@
 #include <click/error.hh>
 #include <click/packet.hh>
 #include "packet.hh"
-#include "PacketServer.hh"
+#include "packetServer.hh"
 CLICK_DECLS 
 PacketServer::PacketServer() : _timer(this){}
 PacketServer::~PacketServer(){}
 
-int PacketClient::initialize(ErrorHandler *errh){
-    if(_timer.initialize(this) == false){
-        return errh->error("timer initiate failure!");
-    }
-    _timer.schedule_now();
-    return 0;
+int PacketServer::initialize(ErrorHandler *errh){
+  _timer.initialize(this);
+  _timer.schedule_now();
+  return 0;
 }
 
-void PacketClient::run_timer(Timer *timer) {
+void PacketServer::run_timer(Timer *timer) {
 
     assert(timer == &_timer);
     this->helloMessage();
@@ -35,7 +33,7 @@ void PacketServer::push(int, Packet *p) {
     click_chatter("Sending out the ack for message sequence %d", format->sequenceNumber);
 }
 
-void PacketClient::helloMessage(){
+void PacketServer::helloMessage(){
     WritablePacket *helloPacket = Packet::make(0,0,sizeof(struct PacketHeader)+5, 0);
     memset(helloPacket->data(), 0, helloPacket->length());
     struct PacketHeader *format = (struct PacketHeader*) helloPacket->data();

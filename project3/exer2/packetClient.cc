@@ -24,17 +24,16 @@ PacketClient::~PacketClient(){
 }
 int PacketClient::configure(Vector<String>&conf, ErrorHandler *errh){
     if(cp_va_kparse(conf, this, errh, 
-      "SrcAddr", cpkM, cpString, &this->SrcAddr, 
-      "DestAddr", cpkM, cpString, &this->DestAddr,
+      "SrcAddr", cpkM, cpString, &this->srcAddr, 
+      "DestAddr", cpkM, cpString, &this->destAddr,
       cpEnd) < 0 )return -1;
+    return 0;
 }
 
 int PacketClient::initialize(ErrorHandler *errh){
-    if(_timer.initialize(this) == false){
-        return errh->error("timer initiate failure!");
-    }
-    _timer.schedule_now();
-    return 0;
+  _timer.initialize(this);
+  _timer.schedule_now();
+  return 0;
 }
 
 void PacketClient::run_timer(Timer *timer) {
