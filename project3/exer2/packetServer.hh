@@ -3,7 +3,7 @@
 #include <click/element.hh>
 #include <click/hashtable.hh>
 #include <click/timer.hh>
-
+#include <click/string.hh>
 CLICK_DECLS
 class PacketServer : public Element {
     public:

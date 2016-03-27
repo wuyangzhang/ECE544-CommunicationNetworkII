@@ -56,7 +56,12 @@ void PacketClient::sendRequest(){
     memset(packet->data(),0,packet->length());
     struct PacketHeader *format = (struct PacketHeader*) packet->data();
     format->type = 0;
+    format->srcAddr = this->srcAddr;
+    format->destAddr = this->destAddr;
     format->sequenceNumber = this->sequenceNumber;
+
+    //    click_chatter("[client]sending addr %s, dest addr %s", format->srcAddr.c_str(), format->destAddr.c_str());
+
     char *data = (char*)(packet->data()+sizeof(struct PacketHeader));
     memcpy(data, "zzzzz", 5);
     output(0).push(packet);

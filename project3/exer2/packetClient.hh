@@ -6,7 +6,7 @@
 #include <unistd.h>
 #include <sys/time.h>
 #include <click/hashtable.hh>
-
+#include <click/string.hh>
 CLICK_DECLS
 	
 class PacketClient : public Element {
