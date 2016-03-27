@@ -14,6 +14,13 @@ int PacketServer::initialize(ErrorHandler *errh){
   return 0;
 }
 
+int PacketClient::configure(Vector<String>&conf, ErrorHandler *errh){
+    if(cp_va_kparse(conf, this, errh, 
+      "SrcAddr", cpkM, cpUnsigned, &this->srcAddr, 
+      cpEnd) < 0 )return -1;
+    return 0;
+}
+
 void PacketServer::run_timer(Timer *timer) {
 
     assert(timer == &_timer);
@@ -45,6 +52,7 @@ void PacketServer::helloMessage(){
     memset(helloPacket->data(), 0, helloPacket->length());
     struct PacketHeader *format = (struct PacketHeader*) helloPacket->data();
     format->type = 2;
+    format->srcAddr = this->srcAddr;
     output(0).push(helloPacket);
     click_chatter("Sending out Hello Message");
 }

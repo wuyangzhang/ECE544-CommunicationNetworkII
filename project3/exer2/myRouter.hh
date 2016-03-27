@@ -35,9 +35,9 @@ class MyRouter : public Element {
         void sendRequest();
     private: 
         Timer _timer;
-        HashTable<int, String> forwardingTable;
-        String srcAddr;
-        String destAddr;
+        HashTable<int, uint32_t> forwardingTable;
+        uint32_t srcAddr;
+        uint32_t destAddr;
 }; 
 
 CLICK_ENDDECLS

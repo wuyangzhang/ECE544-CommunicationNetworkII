@@ -22,10 +22,11 @@ PacketClient::PacketClient() : _timer(this) {
 PacketClient::~PacketClient(){
 	
 }
+
 int PacketClient::configure(Vector<String>&conf, ErrorHandler *errh){
     if(cp_va_kparse(conf, this, errh, 
-      "SrcAddr", cpkM, cpString, &this->srcAddr, 
-      "DestAddr", cpkM, cpString, &this->destAddr,
+      "SrcAddr", cpkM, cpUnsigned, &this->srcAddr, 
+      "DestAddr", cpkM, cpUnsigned, &this->destAddr,
       cpEnd) < 0 )return -1;
     return 0;
 }
@@ -60,8 +61,6 @@ void PacketClient::sendRequest(){
     format->destAddr = this->destAddr;
     format->sequenceNumber = this->sequenceNumber;
 
-    //    click_chatter("[client]sending addr %s, dest addr %s", format->srcAddr.c_str(), format->destAddr.c_str());
-
     char *data = (char*)(packet->data()+sizeof(struct PacketHeader));
     memcpy(data, "zzzzz", 5);
     output(0).push(packet);
@@ -85,6 +84,7 @@ void PacketClient::helloMessage(){
     memset(helloPacket->data(), 0, helloPacket->length());
     struct PacketHeader *format = (struct PacketHeader*) helloPacket->data();
     format->type = 2;
+    format->srcAddr = this->srcAddr;
     output(0).push(helloPacket);
 
     click_chatter("Sending out Hello Message");

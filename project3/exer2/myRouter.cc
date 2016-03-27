@@ -12,13 +12,13 @@ void MyRouter::push(int port, Packet *p) {
     /* read the packet be pushed into the router, classify into: hello message, forwarding*/
     struct PacketHeader *format = (struct PacketHeader*) p->data();
     int packetType = format->type;
-    String in_addr = format->srcAddr;
-    String out_addr = format->destAddr;
+    this->srcAddr = format->srcAddr;
+    this->destaddr = format->destAddr;
     click_chatter("[Router] receiving a pakcet from type%d", format->type);
-    click_chatter("[Router]receiving a packet from %s to %s", format->srcAddr.c_str(), format->destAddr.c_str());
+    click_chatter("[Router]receiving a packet from %d to %d", format->srcAddr, format->destAddr);
     if(packetType == 2){
         /*this is a hello message, the router updates the routing table*/
-      click_chatter("[Router] update forwarding table, port %d", port );
+        click_chatter("[Router] update forwarding table, port %d", port );
         this->updateForwardingTable(port, in_addr);
         p->kill();
     }
@@ -29,15 +29,15 @@ void MyRouter::push(int port, Packet *p) {
         if(forwardingPort == -1){
             click_chatter("Can not find forwarding port for this destination!");
             p->kill();
-	    //            exit(0);
-	    return ;
+	        return ;
         }
+        /* if find forwarding port */
         this->forwardingPacket(p, forwardingPort);
         click_chatter("[Router] forwarding packet to port %d", forwardingPort);
     }
 }
 
-int MyRouter::lookUpForwardingTable(String destAddr){
+int MyRouter::lookUpForwardingTable(uint32_t destAddr){
     int matchPort = -1;
     for(HashTable<int, String>::iterator it = this->forwardingTable.begin(); it; ++it){
       if(String::compare(it.value(), destAddr)==0)
@@ -50,7 +50,7 @@ void MyRouter::forwardingPacket(Packet *p, int port){
     click_chatter("[Router] forwarding packet to port %d", port);
 }
 
-void MyRouter::updateForwardingTable(int port, String in_addr){
+void MyRouter::updateForwardingTable(int port, uint32_t in_addr){
     /* hashtable. port -> MAC_Addr */
     if(!this->forwardingTable[port]) /*port is not in the table*/
         this->forwardingTable.set(port, in_addr);

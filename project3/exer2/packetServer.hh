@@ -15,6 +15,7 @@ class PacketServer : public Element {
 
         void run_timer(Timer*);
         int initialize(ErrorHandler*);
+        int configure(Vector<String>&, ErrorHandler*);
         void push(int ,Packet*);
 	    void helloMessage();
 	private:
