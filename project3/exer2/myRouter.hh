@@ -29,8 +29,8 @@ class MyRouter : public Element {
         const char *processing() const { return PUSH; }
 	   
         void push(int, Packet *p);
-        void updateForwardingTable(int port, String in_addr);
-        int lookUpForwardingTable(String destAddr);
+        void updateForwardingTable(int port, uint32_t in_addr);
+        int lookUpForwardingTable(uint32_t destAddr);
         void forwardingPacket(Packet *p, int port);
         void sendRequest();
     private: 

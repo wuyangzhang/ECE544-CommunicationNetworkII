@@ -13,19 +13,19 @@ void MyRouter::push(int port, Packet *p) {
     struct PacketHeader *format = (struct PacketHeader*) p->data();
     int packetType = format->type;
     this->srcAddr = format->srcAddr;
-    this->destaddr = format->destAddr;
+    this->destAddr = format->destAddr;
     click_chatter("[Router] receiving a pakcet from type%d", format->type);
     click_chatter("[Router]receiving a packet from %d to %d", format->srcAddr, format->destAddr);
     if(packetType == 2){
         /*this is a hello message, the router updates the routing table*/
         click_chatter("[Router] update forwarding table, port %d", port );
-        this->updateForwardingTable(port, in_addr);
+        this->updateForwardingTable(port, this->srcAddr);
         p->kill();
     }
 
     if(packetType == 0 || packetType == 1){
         /*router should forwarding the packet */
-        int forwardingPort = this->lookUpForwardingTable(out_addr);
+        int forwardingPort = this->lookUpForwardingTable(this->destAddr);
         if(forwardingPort == -1){
             click_chatter("Can not find forwarding port for this destination!");
             p->kill();

@@ -85,6 +85,7 @@ void PacketClient::helloMessage(){
     struct PacketHeader *format = (struct PacketHeader*) helloPacket->data();
     format->type = 2;
     format->srcAddr = this->srcAddr;
+    format->destAddr = 1;
     output(0).push(helloPacket);
 
     click_chatter("Sending out Hello Message");
