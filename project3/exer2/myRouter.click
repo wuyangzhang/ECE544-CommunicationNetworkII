@@ -20,10 +20,12 @@ rp3::RouterPort(DEV $dev5, IN_MAC $addrDev5, OUT_MAC $addrDev6)
 //define router that has 3 outputs. 
 myrouter::MyRouter()
 
-rp1->myrouter[0]->rp1
-rp2->myrouter[1]->rp2
-rp3->myrouter[2]->rp3
+rp1->[0]myrouter
+rp2->[1]myrouter
+rp3->[2]myrouter
 
-
+myrouter[0]->rp1
+myrouter[1]->rp2
+myrouter[2]->rp3
 
 

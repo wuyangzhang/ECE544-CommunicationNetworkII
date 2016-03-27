@@ -24,8 +24,15 @@ void PacketServer::run_timer(Timer *timer) {
 
 void PacketServer::push(int, Packet *p) {
     struct PacketHeader *format = (struct PacketHeader*) p->data();
-    /* revise type from 0 -> 1, sending out the ack message for a given sequenceNumber*/
+    /* revise type from 0 -> 1, sending out the ack message for a given sequenceNumber*/    
     format-> type = 1;
+    /* exchange src and dest addr*/
+    String in_addr = format->srcAddr;
+    String out_addr = format->destAddr;
+    
+    format->srcAddr = out_addr;
+    format->destAddr = in_addr;
+
     //    WritablePacket *ackPacket = Packet::clone(*p);
     char* packetContent = (char*) (p->data() + sizeof(struct PacketHeader));
     memcpy(packetContent, "ack", 3);
@@ -37,7 +44,7 @@ void PacketServer::helloMessage(){
     WritablePacket *helloPacket = Packet::make(0,0,sizeof(struct PacketHeader)+5, 0);
     memset(helloPacket->data(), 0, helloPacket->length());
     struct PacketHeader *format = (struct PacketHeader*) helloPacket->data();
-    format->type = 3;
+    format->type = 2;
     output(0).push(helloPacket);
     click_chatter("Sending out Hello Message");
 }

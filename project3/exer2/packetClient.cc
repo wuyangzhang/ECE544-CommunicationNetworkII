@@ -39,8 +39,9 @@ int PacketClient::initialize(ErrorHandler *errh){
 void PacketClient::run_timer(Timer *timer) {
 
     assert(timer == &_timer);
-    this->sendRequest();
     this->helloMessage();
+    this->sendRequest();
+
     /* waiting for 2s, periodically send hello message.*/  
     _timer.reschedule_after_msec(2000);
 }
@@ -78,7 +79,7 @@ void PacketClient::helloMessage(){
     WritablePacket *helloPacket = Packet::make(0,0,sizeof(struct PacketHeader)+5, 0);
     memset(helloPacket->data(), 0, helloPacket->length());
     struct PacketHeader *format = (struct PacketHeader*) helloPacket->data();
-    format->type = 3;
+    format->type = 2;
     output(0).push(helloPacket);
 
     click_chatter("Sending out Hello Message");
