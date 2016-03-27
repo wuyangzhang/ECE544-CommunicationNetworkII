@@ -27,13 +27,10 @@ class MyRouter : public Element {
         const char *class_name() const { return "MyRouter";}
         const char *port_count() const { return "1-/1-";} /* each router has at least 1 port */
         const char *processing() const { return PUSH; }
-	    	
-        void run_timer(Timer*);
-        int initialize(ErrorHandler*);
-        int configure(Vector<String>&, ErrorHandler);
+	   
         void push(int, Packet *p);
-        void updateForwardingTable();
-        int lookUpForwardingTable();
+        void updateForwardingTable(int port, String in_addr);
+        int lookUpForwardingTable(String destAddr);
         void forwardingPacket(Packet *p, int port);
         void sendRequest();
     private: 

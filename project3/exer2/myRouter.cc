@@ -3,26 +3,10 @@
 #include <click/error.hh>
 #include <click/packet.hh>
 #include "packet.hh"
-#include "MyRouter.hh"
+#include "myRouter.hh"
 CLICK_DECLS 
 MyRouter::MyRouter() : _timer(this){}
 MyRouter::~MyRouter(){}
-
-int PacketClient::initialize(ErrorHandler *errh){
-    if(_timer.initialize(this) == false){
-        return errh->error("timer initiate failure!");
-    }
-    _timer.schedule_now();
-    return 0;
-}
-
-void PacketClient::run_timer(Timer *timer) {
-
-    assert(timer == &_timer);
-    this->helloMessage();
-    /* waiting for 2s, periodically send hello message.*/  
-    _timer.reschedule_after_msec(2000);
-}
 
 void MyRouter::push(int port, Packet *p) {
     /* read the packet be pushed into the router, classify into: hello message, forwarding*/
@@ -72,14 +56,7 @@ void MyRouter::updateForwardingTable(int port, String in_addr){
     }
 
 }
-void PacketClient::helloMessage(){
-    WritablePacket *helloPacket = Packet::make(0,0,sizeof(struct PacketHeader)+5, 0);
-    memset(helloPacket->data(), 0, helloPacket->length());
-    struct PacketHeader *format = (struct PacketHeader*) helloPacket->data();
-    format->type = 3;
-    output(0).push(helloPacket);
-    click_chatter("Sending out Hello Message");
-}
+
 
 CLICK_ENDDECLS 
 EXPORT_ELEMENT(MyRouter)
