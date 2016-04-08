@@ -11,7 +11,7 @@
 #include <click/element.hh>
 #include <click/timer.hh>
 #include <click/vector.hh>
-
+#include <click/hashtable.hh>
 CLICK_DECLS
 
 class RoutingTable : public Element {
@@ -55,13 +55,13 @@ class RoutingTable : public Element {
         struct updateInfo{
             uint16_t sourceAddr;
             uint32_t cost;
-            List<uint16_t> nextHop
+	  Vector<uint16_t> nextHop;
         };
 
         struct routingTableParam{
             uint32_t cost;
             uint16_t hopCount; /* size of list nextHop */
-            List<uint16_t> nextHop; /*store multiple next hop*/
+            Vector<uint16_t> nextHop; /*store multiple next hop*/
         };
 
         HashTable<uint16_t, routingTableParam>routingTable;
@@ -69,7 +69,7 @@ class RoutingTable : public Element {
         struct forwardTableParam{
             uint32_t cost;
             uint8_t portCount; /* size of list port count */
-            List<uint8_t> port; /* store multiple port */
+            Vector<uint8_t> port; /* store multiple port */
         };
 
         HashTable<uint16_t, forwardTableParam> forwardingTable;

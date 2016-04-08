@@ -10,7 +10,7 @@
 #include <click/packet.hh>
 
 #include "routingTable.hh" 
-#include "packets.hh"
+#include "packet.hh"
 
 CLICK_DECLS 
 RoutingTable::RoutingTable(){}
