@@ -12,8 +12,8 @@
 #include <click/timer.hh>
 
 #include "routingTable.hh"
-#include "packets.hh"
-#include "ackPacket.hh"
+#include "packet.hh"
+#include "ackModule.hh"
 
 CLICK_DECLS
 

@@ -25,7 +25,7 @@ HelloModule::~HelloModule(){}
 
 int 
 HelloModule::initialize(ErrorHandler *errh){
-	this->_timeHello.initialize(this);
+	this->_timerHello.initialize(this);
 	if(this->_delay > 0 ){
 		_timerHello.schedule_after_sec(this->_delay);
 	}
@@ -33,7 +33,7 @@ HelloModule::initialize(ErrorHandler *errh){
 }
 
 int
-HelloModule::configure(Vector<String>&, ErrorHandler*){
+HelloModule::configure(Vector<String>&conf, ErrorHandler* errh){
   if (cp_va_kparse(conf, this, errh,
               "MY_ADDRESS", cpkP+cpkM, cpUnsigned, &_myAddr,
               "DELAY", cpkP, cpUnsigned, &_delay,
@@ -67,7 +67,7 @@ void
 HelloModule::push(int port, Packet *packet) {
 	assert(packet);
 	/* it is a hello packet with additional input port info*/
-	uint8_t* portNum = (int*)packet->data();
+	uint8_t* portNum = (uint8_t*)packet->data();
 	struct HelloPacket* HelloPacket = (struct HelloPacket*)(portNum+1);
 
  	click_chatter("[MulticastRouter] Receiving Hello Packet from Source %d with sequence %d from port %d", HelloPacket->sourceAddr, HelloPacket->sequenceNumber, *portNum);
@@ -85,24 +85,24 @@ HelloModule::push(int port, Packet *packet) {
 
 void
 HelloModule::sendHello(){
-	if(ackModule.get(this->helloSequence == true)){
-		this->sequenceNumber++;
+	if(ackModule->ackTable.get(this->helloSequence == true)){
+		this->helloSequence++;
 	}
-    WritablePacket *HelloPacket = Packet::make(0,0,sizeof(struct HelloPacket), 0);
-    memset(HelloPacket->data(), 0, HelloPacket->length());
-    struct HelloPacket *format = (struct PacketHeader*) HelloPacket->data();
+    WritablePacket *helloPacket = Packet::make(0,0,sizeof(struct HelloPacket), 0);
+    memset(helloPacket->data(), 0, helloPacket->length());
+    struct HelloPacket *format = (struct HelloPacket*) helloPacket->data();
     format->type = HELLO;
-    format->srcAddr = this->srcAddr;
-    formt->sequenceNumber = this->helloSequence;
+    format->sourceAddr = this->_myAddr;
+    format->sequenceNumber = this->helloSequence;
 
-    output(0).push(HelloPacket);
+    output(0).push(helloPacket);
 
     click_chatter("[MulticastRouter] Sending Hello Message with sequence %d", this->helloSequence);
 }
 
 void
 HelloModule::sendAck(const uint8_t portNum, const uint8_t sequenceNumber, const uint16_t sourceAddr){
-	WritablePacket *ackPacket = Packet::make(0,0, sizeof(AckPacket));
+	  WritablePacket *ackPacket = Packet::make(0,0, sizeof(struct AckPacket),0);
     memset(ackPacket->data(), 0, ackPacket->length());
     struct AckPacket* format = (struct AckPacket*) ackPacket->data();
     format->type = ACK;

@@ -12,7 +12,7 @@
 #include <click/timer.hh>
 
 #include "updateModule.hh"
-#include "packets.hh"
+#include "packet.hh"
 #include "ackModule.hh"
 
 CLICK_DECLS

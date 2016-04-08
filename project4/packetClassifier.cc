@@ -10,7 +10,7 @@
 #include <click/packet.hh>
 
 #include "packetClassifier.hh" 
-#include "packets.hh"
+#include "packet.hh"
 
 CLICK_DECLS 
 PacketClassifier::PacketClassifier(){}
@@ -24,9 +24,9 @@ PacketClassifier::initialize(ErrorHandler *errh){
 
 /* classify packet according to packet type */
 void 
-PacketClassifier::push(int port, Packet *packet) {
-	assert(packet);
-	struct PacketType *header = (struct PacketType *) packet->data();
+PacketClassifier::push(int port, Packet *p) {
+	assert(p);
+	struct PacketType *header = (struct PacketType *) p->data();
 
 	if(header->type == HELLO ) {
 		/* add port info into packet */
@@ -43,14 +43,14 @@ PacketClassifier::push(int port, Packet *packet) {
 		output(1).push(q);
 
 	} else if(header->type == ACK) {
-		output(2).push(packet);
+		output(2).push(p);
 
 	} else if(header->type == DATA){
-		output(3).push(packet);
+		output(3).push(p);
 
 	}else{
 		click_chatter("[PacketClassifier] Invalid packet type, packet has been killed!");
-		packet->kill();
+		p->kill();
 	}
 }
 

@@ -33,11 +33,12 @@ AckModule::push(int port, Packet *packet) {
 	packet->kill();
 }
 
-
+/* deprecated
 void
 AckModule::sendAck(const uint8_t portNum, const uint8_t sequenceNumber, const uint16_t sourceAddr){
 
 }
+*/
 CLICK_ENDDECLS 
 EXPORT_ELEMENT(AckPacket)
 
