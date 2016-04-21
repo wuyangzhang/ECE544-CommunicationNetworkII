@@ -85,17 +85,17 @@ HelloModule::push(int port, Packet *packet) {
 
 void
 HelloModule::sendHello(){
-	if(ackModule->get(this->helloSequence == true)){
+	if(ackModule->ackTable.get(this->helloSequence == true)){
 		this->helloSequence++;
 	}
     WritablePacket *helloPacket = Packet::make(0,0,sizeof(struct HelloPacket), 0);
-    memset(HelloPacket->data(), 0, HelloPacket->length());
+    memset(helloPacket->data(), 0, helloPacket->length());
     struct HelloPacket *format = (struct HelloPacket*) helloPacket->data();
     format->type = HELLO;
     format->sourceAddr = this->_myAddr;
     format->sequenceNumber = this->helloSequence;
 
-    output(0).push(HelloPacket);
+    output(0).push(helloPacket);
 
     click_chatter("[MulticastRouter] Sending Hello Message with sequence %d", this->helloSequence);
 }

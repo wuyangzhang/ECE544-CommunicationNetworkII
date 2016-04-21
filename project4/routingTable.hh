@@ -10,7 +10,7 @@
   
 #include <click/element.hh>
 #include <click/timer.hh>
-#include <click/list.hh>
+#include <click/vector.hh>
 
 CLICK_DECLS
 

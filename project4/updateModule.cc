@@ -137,7 +137,7 @@ UpdateModule::sendUpdate(){
     cast = (uint16_t*)(castCost+1);
     *castHopCount = it.value().hopCount;
     uint16_t* castNextHop = (uint16_t*)(castHopCount+1);
-    for(List<uint16_t>::iterator list = this->routingTable.begin(); list != this->routingTable.end(); ++list){
+    for(Vector<uint16_t>::iterator list = this->routingTable.begin(); list != this->routingTable.end(); ++list){
        *castNextHop = list;
        castNextHop+1;
        cast+1;
