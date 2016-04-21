@@ -55,7 +55,7 @@ class RoutingTable : public Element {
         struct updateInfo{
             uint16_t sourceAddr;
             uint32_t cost;
-	  Vector<uint16_t> nextHop;
+            Vector<uint16_t> nextHop
         };
 
         struct routingTableParam{
@@ -64,7 +64,7 @@ class RoutingTable : public Element {
             Vector<uint16_t> nextHop; /*store multiple next hop*/
         };
 
-        HashTable<uint16_t, routingTableParam>routingTable;
+        HashTable<uint16_t, routingTableParam> routingTable;
 
         struct forwardTableParam{
             uint32_t cost;

@@ -28,24 +28,24 @@ RoutingTable::push(int port, Packet *packet) {
 }
 
 void 
-MulticastRouter::updateRoutingTable(const uint16_t sourceAddr, const uint16_t cost, const uint16_t nextHop){
+RoutingTable::updateRoutingTable(const uint16_t sourceAddr, const uint16_t cost, const uint16_t nextHop){
   
 }
 
 
 void 
-MulticastRouter::updateForwardingTable(const uint16_t sourceAddr, const uint16_t cost, const uint8_t port){
+RoutingTable::updateForwardingTable(const uint16_t sourceAddr, const uint16_t cost, const uint8_t port){
 
 }
 
 void
-MulticastRouter::updateRoutingTable(const uint16_t sourceAddr, const uint16_t cost, const uint16_t nextHop, const uint8_t sharedPath){
+RoutingTable::updateRoutingTable(const uint16_t sourceAddr, const uint16_t cost, const uint16_t nextHop, const uint8_t sharedPath){
 	
 }
 
 
 void
-MulticastRouter::updateForwardingTable(const uint16_t sourceAddr, const uint16_t cost, const uint8_t port, const uint8_t sharedPath){
+RoutingTable::updateForwardingTable(const uint16_t sourceAddr, const uint16_t cost, const uint8_t port, const uint8_t sharedPath){
 
 }
 
@@ -57,10 +57,10 @@ MulticastRouter::updateForwardingTable(const uint16_t sourceAddr, const uint16_t
  * new cost == current cost, record new path
  */
 void 
-MulticastRouter::computeRoutingTable(const uint16_t destAddr, const uint32_t cost, const uint16_t nextHop){
+RoutingTable::computeRoutingTable(const uint16_t destAddr, const uint32_t cost, const uint16_t nextHop){
 
     struct routingTableParam rtp; 
-    rtp.nextHop = List<uint16_t>();
+    rtp.nextHop = Vector<uint16_t>();
     rtp.cost = cost;
 
     if(!this->routingTable[destAddr]){
@@ -73,7 +73,7 @@ MulticastRouter::computeRoutingTable(const uint16_t destAddr, const uint32_t cos
         this->routingTable.set(sourceAddr, rtp);
     }else if(cost == this->routingTable.get(sourceAddr).cost){
     	/* fetch all current next hop followed by a new next hop, build a new next hop structure */
-    	for(List<uint16_t>::iterator it = this->routingTable.get(sourceAddr).nextHop.begin(); it != this->routingTable.get(sourceAddr).nextHop.end(); ++it){
+    	for(Vector<uint16_t>::iterator it = this->routingTable.get(sourceAddr).nextHop.begin(); it != this->routingTable.get(sourceAddr).nextHop.end(); ++it){
     		rpt.nextHop.push_back(it);
     	}
 
@@ -85,9 +85,9 @@ MulticastRouter::computeRoutingTable(const uint16_t destAddr, const uint32_t cos
 
 
 void
-MulticastRouter::computeForwardingTable(const uint16_t sourceAddr, const uint16_t cost, const uint8_t port){
+RoutingTable::computeForwardingTable(const uint16_t sourceAddr, const uint16_t cost, const uint8_t port){
 	struct forwardingTableParam ftp; 
-    ftp.port = List<uint8_t>();
+    ftp.port = Vector<uint8_t>();
     ftp.cost = cost;
 
     if(!this->forwardingTable[destAddr]){
@@ -100,7 +100,7 @@ MulticastRouter::computeForwardingTable(const uint16_t sourceAddr, const uint16_
         this->forwardingTable.set(sourceAddr, ftp);
     }else if(cost == this->forwardingTable.get(sourceAddr).cost){
     	/* fetch all current next hop followed by a new next hop, build a new next hop structure */
-    	for(List<uint8_t>::iterator it = this->forwardingTable.get(sourceAddr).port.begin(); it != this->forwardingTable.get(sourceAddr).port.end(); ++it){
+    	for(Vecotr<uint8_t>::iterator it = this->forwardingTable.get(sourceAddr).port.begin(); it != this->forwardingTable.get(sourceAddr).port.end(); ++it){
     		fpt.nextHop.push_back(it);
     	}
 
@@ -113,31 +113,28 @@ MulticastRouter::computeForwardingTable(const uint16_t sourceAddr, const uint16_
 
 
 int 
-MulticastRouter::lookUpForwardingTable(uint32_t destAddr){
+RoutingTable::lookUpForwardingTable(uint32_t destAddr){
 
     int matchPort = -1;
-    for(HashTable<int, uint32_t>::iterator it = this->forwardingTable.begin(); it; ++it){
-      if(it.value() == destAddr)
-            matchPort = it.key();
-    }
+    
     return matchPort;
 }
 
 
 void 
-MulticastRouter::forwardingPacket(Packet *p, int port){
+RoutingTable::forwardingPacket(Packet *p, int port){
     output(port).push(p);
     click_chatter("[Router] forwarding packet to port %d", port);
 }
 
 void 
-MulticastRouter::printRoutingTable(){
+RoutingTable::printRoutingTable(){
 
 }
 
 
 void
-MulticastRouter::printForwardingTable(){
+RoutingTable::printForwardingTable(){
 
 }
 

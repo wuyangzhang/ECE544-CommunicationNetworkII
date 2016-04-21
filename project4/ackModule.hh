@@ -26,7 +26,7 @@ class AckModule : public Element {
     void push(int port, Packet *packet);
     int initialize(ErrorHandler*);
 
-    void sendAck(const uint8_t portNum, const uint8_t sequenceNumber, const uint16_t sourceAddr);
+    //void sendAck(const uint8_t portNum, const uint8_t sequenceNumber, const uint16_t sourceAddr);
 
     /* maintain ack table for hello, update, data */
     HashTable<uint8_t, bool>ackTable;
