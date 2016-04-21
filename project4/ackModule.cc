@@ -40,5 +40,5 @@ AckModule::sendAck(const uint8_t portNum, const uint8_t sequenceNumber, const ui
 }
 */
 CLICK_ENDDECLS 
-EXPORT_ELEMENT(AckPacket)
+EXPORT_ELEMENT(AckModule)
 

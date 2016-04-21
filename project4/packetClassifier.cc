@@ -30,16 +30,16 @@ PacketClassifier::push(int port, Packet *p) {
 
 	if(header->type == HELLO ) {
 		/* add port info into packet */
-		WritablePacket *q = p->push(sizeof(int));
-		int *portNum = (int*) q->data();
-		*portNum = port;
+		WritablePacket *q = p->push(sizeof(uint8_t));
+		uint8_t *portNum = (uint8_t*) q->data();
+		*portNum = *((uint8_t*)(&port));
 		output(0).push(q);
 
 	} else if(header->type == UPDATE) {
 		/* add port info into packet */
-		WritablePacket *q = p->push(sizeof(int));
-		int *portNum = (int*) q->data();
-		*portNum = port;
+		WritablePacket *q = p->push(sizeof(uint8_t));
+		uint8_t *portNum = (uint8_t*) q->data();
+		*portNum = *((uint8_t*)(&port));
 		output(1).push(q);
 
 	} else if(header->type == ACK) {

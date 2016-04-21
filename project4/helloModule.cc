@@ -104,6 +104,7 @@ HelloModule::sendHello(){
 
 void
 HelloModule::sendAck(const uint8_t portNum, const uint8_t sequenceNumber, const uint16_t sourceAddr){
+
 	  WritablePacket *ackPacket = Packet::make(0,0, sizeof(struct AckPacket),0);
     memset(ackPacket->data(), 0, ackPacket->length());
     struct AckPacket* format = (struct AckPacket*) ackPacket->data();
@@ -112,7 +113,11 @@ HelloModule::sendAck(const uint8_t portNum, const uint8_t sequenceNumber, const 
     format->sequenceNumber = sequenceNumber;
     format->destinationAddr = sourceAddr;
 
-    output(portNum).push(ackPacket);
+    WritablePacket *q = ackPacket->push(sizeof(uint8_t));
+    uint8_t *port = (uint8_t*) q->data();
+    *port = *((uint8_t*)(&portNum));
+
+    output(1).push(q);
 }
 CLICK_ENDDECLS 
 EXPORT_ELEMENT(HelloModule)
