@@ -61,13 +61,13 @@ class RoutingTable : public Element {
         };
 
        
-        struct forwardTableParam{
+        struct forwardingTableParam{
             uint32_t cost;
             uint8_t portCount; /* size of list port count */
             Vector<uint8_t> port; /* store multiple port */
         };
 
-        HashTable<uint16_t, struct forwardTableParam*> forwardingTable;
+        HashTable<uint16_t, struct forwardingTableParam*> forwardingTable;
 
         struct routingTableParam{
             uint32_t cost;

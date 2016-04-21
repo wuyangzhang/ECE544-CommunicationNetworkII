@@ -12,6 +12,7 @@
 #include "routingTable.hh" 
 
 CLICK_DECLS 
+
 RoutingTable::RoutingTable(){}
 
 RoutingTable::~RoutingTable(){}
@@ -56,6 +57,38 @@ RoutingTable::updateForwardingTable(const uint16_t sourceAddr, const uint16_t co
  * new cost < current cost, update value
  * new cost == current cost, record new path
  */
+void
+RoutingTable::computeForwardingTable(const uint16_t sourceAddr, const uint16_t cost, const uint8_t port){
+    
+    struct forwardingTableParam* ftp = new struct forwardingTableParam();
+    ftp->port = Vector<uint8_t>();
+    ftp->cost = cost;
+
+    if(this->forwardingTable.get(sourceAddr) == NULL){
+        /* add new destination address */
+
+        ftp->port.push_back(port);
+        ftp->portCount = 1;
+        this->forwardingTable.set(sourceAddr, ftp);
+    }else if(cost < this->forwardingTable.get(sourceAddr)->cost){
+        /* update the cost of destination */
+        ftp->port.push_back(port);
+        ftp->portCount = 1;
+        this->forwardingTable.set(sourceAddr, ftp);
+    }else if(cost == this->forwardingTable.get(sourceAddr)->cost){
+        /* fetch all current next hop followed by a new next hop, build a new next hop structure */
+        for(Vector<uint8_t>::iterator it = this->forwardingTable.get(sourceAddr)->port.begin(); it != this->forwardingTable.get(sourceAddr)->port.end(); ++it){
+            ftp->port.push_back(it);
+        }
+
+        ftp->port.push_back(port);
+        ftp->portCount = ftp->port.size();
+        this->forwardingTable.set(sourceAddr, ftp);
+    }
+    delete ftp;
+}
+
+
 void 
 RoutingTable::computeRoutingTable(const uint16_t sourceAddr, const uint16_t cost, const uint16_t nextHop){
 
@@ -89,37 +122,6 @@ RoutingTable::computeRoutingTable(const uint16_t sourceAddr, const uint16_t cost
 }
 
 
-void
-RoutingTable::computeForwardingTable(const uint16_t sourceAddr, const uint16_t cost, const uint8_t port){
-
-   struct forwardingTableParam& ftp; 
-
-
-    ftp.port = Vector<uint8_t>();
-    ftp.cost = cost;
-
-    if(this->forwardingTable.get(sourceAddr) == NULL){
-    	/* add new destination address */
-    	ftp->port.push_back(port);
-        ftp->portCount = 1;
-        this->forwardingTable.set(sourceAddr, ftp);
-    }else if(cost < this->forwardingTable.get(sourceAddr)->cost){
-    	/* update the cost of destination */
-    	ftp->port.push_back(port);
-        ftp->portCount = 1;
-        this->forwardingTable.set(sourceAddr, ftp);
-    }else if(cost == this->forwardingTable.get(sourceAddr)->cost){
-    	/* fetch all current next hop followed by a new next hop, build a new next hop structure */
-    	for(Vecotr<uint8_t>::iterator it = this->forwardingTable.get(sourceAddr)->port.begin(); it != this->forwardingTable.get(sourceAddr)->port.end(); ++it){
-    		ftp->nextHop.push_back(it);
-    	}
-
-    	ftp->nextHop.push_back(port);
-        ftp->portCount = ftp->port.size();
-        this->forwardingTable.set(sourceAddr, ftp);
-    }
-    delete ftp;
-}
 
 
 int 
