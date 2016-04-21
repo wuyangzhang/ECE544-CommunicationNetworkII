@@ -64,7 +64,7 @@ class RoutingTable : public Element {
             Vector<uint16_t> nextHop; /*store multiple next hop*/
         };
 
-        HashTable<uint16_t, routingTableParam> routingTable;
+        HashTable<uint16_t, struct* routingTableParam> routingTable;
 
         struct forwardTableParam{
             uint32_t cost;
@@ -72,7 +72,7 @@ class RoutingTable : public Element {
             Vector<uint8_t> port; /* store multiple port */
         };
 
-        HashTable<uint16_t, forwardTableParam> forwardingTable;
+        HashTable<uint16_t, struct* forwardTableParam> forwardingTable;
 
         uint32_t srcAddr;
         uint32_t destAddr;
