@@ -87,7 +87,7 @@ HelloModule::push(int port, Packet *packet) {
 
 void
 HelloModule::sendHello(){
-	if(ackModule->ackTable.get(this->helloSequence == true)){
+	if(ackModule->ackTable.get(this->helloSequence) == true){
 		this->helloSequence++;
 	}
     WritablePacket *helloPacket = Packet::make(0,0,sizeof(struct HelloPacket), 0);

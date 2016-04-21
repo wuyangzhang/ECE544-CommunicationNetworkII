@@ -11,12 +11,11 @@
 
 #include "updateModule.hh" 
 #include "packet.hh"
-#include "routingTable.hh"  
-#include "ackModule.hh"
+
 
 CLICK_DECLS 
-UpdateModule::UpdateModule()_timeUpdate(this){
-  this->helloSequence = 10;
+UpdateModule::UpdateModule() : _timerUpdate(this){
+  this->updateSequence = 10;
   this->_myAddr = 0;
   this->_delay = 0;
   this->_period = 5;
@@ -32,7 +31,7 @@ UpdateModule::initialize(){
 
 
 void
-UpdateModule::run_timer(Timer*){
+UpdateModule::run_timer(Timer* timer){
   if(timer == &_timerUpdate){
     this->sendUpdate();
   }
@@ -76,21 +75,22 @@ UpdateModule::push(int port, Packet *packet) {
   for(uint16_t i = 0; i < routingTableRowCount; i++){
     uint16_t* castSrcAddr = (uint16_t*)cast;
     uint32_t* castCost = (uint32_t*)(castSrcAddr+1);
-    cast = (uint32_t*)(castSrcAddr+1);
+    cast  = (uint32_t*)cast;
+    cast = castSrcAddr+1;
     uint16_t* castHopCount = (uint16_t*)(castCost+1);
     cast = (uint16_t*)(castHopCount+1);
     uint16_t* castNextHop = (uint16_t*)(castHopCount+1);
     cast = (uint16_t*)(castHopCount+1);
     for(uint16_t i = 0; i< *castHopCount; i++){
         this->routingTable->computeRoutingTable(*castSrcAddr, (*castCost) + 1, *castNextHop); /* castCost + 1 -> 1 hop to its neighbor */
-        this->routingTable->computeForwardingTable(*castSrcAddr, (*castCost) + 1, portNum);
+        this->routingTable->computeForwardingTable(*castSrcAddr, (*castCost) + 1, *portNum);
         castNextHop+1;
         cast+1;
     }
   }
 
   /* send back ack */
-  this->sendAck(portNum, updatePacket->sequenceNumber, updatePacket->sourceAddr);
+  this->sendAck*portNum, updatePacket->sequenceNumber, updatePacket->sourceAddr);
 }
 
 /* sendUpdate()
@@ -110,37 +110,38 @@ UpdateModule::sendUpdate(){
    *     List<uint16_t> nextHop; 
    *--------------------------------------------------------
  */
-  if(ackModule.get(this->helloSequence == true)){
-    this->sequenceNumber++;
+  if(ackModule->ackTable.get(this->updateSequence) == true){
+    this->updateSequence++;
   }
   int routingTableSize = 0;
   int routingTableRowCount = 0;
-  for(List<uint16_t>::iterator it = this->routingTable.begin(); it != this->routingTable.end(); ++it){
-      routingTableSize += (sizeof(uint32_t) + sizeof(uint16_t) + sizeof(uint16_t)* it.value().hopCount);
-      routingTableRowCount++
+  for(HashTable<uint16_t,struct RoutingTable::routingTableParam*>::iterator it = this->routingTable->routingTable.begin(); it; ++it){
+      routingTableSize += ( sizeof(uint32_t) + sizeof(uint16_t) + sizeof(uint16_t) * it.value()->hopCount );
+      routingTableRowCount++;
   }
 
-  WritablePacket *updatePacket = Packet::make(0,0, sizeof(struct UpdatePacket)+ routingTableSize);
+  WritablePacket *updatePacket = Packet::make(0,0, sizeof(struct UpdatePacket)+ routingTableSize, 0);
   memset(updatePacket->data(), 0, updatePacket->length());
-  struct UpdataPacket *format = (struct UpdataPacket*) updatePacket->data();
+  struct UpdatePacket *format = (struct UpdatePacket*) updatePacket->data();
   format->type = UPDATE;
-  format->sourceAddr = this->srcAddr;
+  format->sourceAddr = this->_myAddr;
   format->sequenceNumber = this->updateSequence;
   format->length = routingTableRowCount; /* length of payload */
 
   /* write payload as routing table info, with looping struct pointer to write payload*/
   uint16_t* cast = (uint16_t*)(format+1);
-  for(HashTable<uint16_t,routingTableParam>::iterator it = this->routingTable.begin(); it; ++it){
+  for(HashTable<uint16_t,struct RoutingTable::routingTableParam*>::iterator it = this->routingTable->routingTable.begin(); it; ++it){
+
     uint16_t* castSrcAddr = (uint16_t*)cast;
     *castSrcAddr = it.key();
     uint32_t* castCost = (uint32_t*)(castSrcAddr+1);
     cast = (uint32_t*)(castSrcAddr+1);
-    *castCost = it.value().cost;
+    *castCost = it.value()->cost;
     uint16_t* castHopCount = (uint16_t*)(castCost+1);
     cast = (uint16_t*)(castCost+1);
-    *castHopCount = it.value().hopCount;
+    *castHopCount = it.value()->hopCount;
     uint16_t* castNextHop = (uint16_t*)(castHopCount+1);
-    for(Vector<uint16_t>::iterator list = this->routingTable.begin(); list != this->routingTable.end(); ++list){
+    for(Vector<uint16_t>::iterator list = it.value()->nextHop.begin(); list; ++list){
        *castNextHop = list;
        castNextHop+1;
        cast+1;
@@ -156,7 +157,7 @@ UpdateModule::sendUpdate(){
 void
 UpdateModule::sendAck(const uint8_t portNum, const uint8_t sequenceNumber, const uint16_t sourceAddr){
 
-    WritablePacket *ackPacket = Packet::make(0,0, sizeof(AckPacket));
+    WritablePacket *ackPacket = Packet::make(0,0, sizeof(AckPacket), 0);
     memset(ackPacket->data(), 0, ackPacket->length());
     struct AckPacket* format = (struct AckPacket*) ackPacket->data();
     format->type = ACK;

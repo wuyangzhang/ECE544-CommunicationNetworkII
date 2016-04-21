@@ -77,10 +77,13 @@ RoutingTable::computeForwardingTable(const uint16_t sourceAddr, const uint16_t c
         this->forwardingTable.set(sourceAddr, ftp);
     }else if(cost == this->forwardingTable.get(sourceAddr)->cost){
         /* fetch all current next hop followed by a new next hop, build a new next hop structure */
-        for(Vector<uint8_t>::iterator it = this->forwardingTable.get(sourceAddr)->port.begin(); it != this->forwardingTable.get(sourceAddr)->port.end(); ++it){
+        ftp->port = this->forwardingTable.get(sourceAddr)->port;
+
+        /*
+        for(Vector<uint8_t>::iterator it = ftp.port.begin(); it != this->forwardingTable.get(sourceAddr)->port.end(); ++it){
             ftp->port.push_back(it);
         }
-
+        */
         ftp->port.push_back(port);
         ftp->portCount = ftp->port.size();
         this->forwardingTable.set(sourceAddr, ftp);
@@ -108,11 +111,13 @@ RoutingTable::computeRoutingTable(const uint16_t sourceAddr, const uint16_t cost
         this->routingTable.set(sourceAddr, rtp);
     }else if(cost == this->routingTable.get(sourceAddr)->cost){
     	/* fetch all current next hop followed by a new next hop, build a new next hop structure */
-
+        /*
     	for(Vector<uint16_t>::iterator it = this->routingTable.get(sourceAddr)->nextHop.begin(); it != this->routingTable.get(sourceAddr)->nextHop.end(); ++it){
     		rtp->nextHop.push_back(it);
     	}
+        */
 
+        rtp->nextHop = this->routingTable.get(sourceAddr)->nextHop;
     	rtp->nextHop.push_back(nextHop);
         rtp->hopCount = rtp->nextHop.size();
         this->routingTable.set(sourceAddr, rtp);

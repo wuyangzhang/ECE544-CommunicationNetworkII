@@ -25,13 +25,15 @@ class UpdateModule : public Element {
     const char *port_count() const { return "1/1-";}
     const char *processing() const { return PUSH; }
     void run_timer(Timer*);
-    int initialize(ErrorHandler*);
+    int initialize();
     int configure(Vector<String>&, ErrorHandler*);
 
     void push(int port, Packet *packet);
 
     void sendUpdate();
     void receiveUpdate(const int port, Packet *p);
+    void sendAck(const uint8_t portNum, const uint8_t sequenceNumber, const uint16_t sourceAddr);
+
 
   private:
     AckModule* ackModule;
