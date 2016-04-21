@@ -23,7 +23,7 @@ UpdateModule::UpdateModule()_timeUpdate(this){
 UpdateModule::~UpdateModule(){}
 
 int 
-UpdateModule::initialize(ErrorHandler *errh){
+UpdateModule::initialize(){
     return 0;
 }
 
@@ -38,7 +38,7 @@ UpdateModule::run_timer(Timer*){
 
 
 int
-UpdateModule::configure(Vector<String>&, ErrorHandler*){
+UpdateModule::configure(Vector<String>&conf, ErrorHandler* errh){
  if (cp_va_kparse(conf, this, errh,
               "MY_ADDRESS", cpkP+cpkM, cpUnsigned, &_myAddr,
               "DELAY", cpkP, cpUnsigned, &_delay,

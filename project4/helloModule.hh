@@ -13,7 +13,7 @@
 
 #include "routingTable.hh"
 #include "packets.hh"
-#include "ackPacket.hh"
+#include "ackModule.hh"
 
 CLICK_DECLS
 

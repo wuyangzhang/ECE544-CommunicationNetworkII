@@ -24,7 +24,7 @@ class RoutingTable : public Element {
         const char *processing() const { return PUSH; }
 		
 		    void push(int port, Packet *packet);
-        int initialize(ErrorHandler*);
+        int initialize();
 
         void updateRoutingTable(const uint16_t sourceAddr, const uint16_t cost, const uint16_t nextHop);
         void updateForwardingTable(const uint16_t sourceAddr, const uint16_t cost, const uint8_t port);
@@ -54,12 +54,12 @@ class RoutingTable : public Element {
          */
         struct updateInfo{
             uint16_t sourceAddr;
-            uint32_t cost,
+            uint32_t cost;
             List<uint16_t> nextHop
         };
 
         struct routingTableParam{
-            uint32_t cost,
+            uint32_t cost;
             uint16_t hopCount; /* size of list nextHop */
             List<uint16_t> nextHop; /*store multiple next hop*/
         };
@@ -67,7 +67,7 @@ class RoutingTable : public Element {
         HashTable<uint16_t, routingTableParam>routingTable;
 
         struct forwardTableParam{
-            uint32_t cost,
+            uint32_t cost;
             uint8_t portCount; /* size of list port count */
             List<uint8_t> port; /* store multiple port */
         };
