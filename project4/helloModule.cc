@@ -9,8 +9,10 @@
 #include <click/timer.hh>
 #include <click/packet.hh>
 
-#include "helloModule.hh" 
-
+#include "helloModule.hh"
+#include "packet.hh" 
+#include "routingTable.hh"
+#include "ackModule.hh"
 
 CLICK_DECLS 
 HelloModule::HelloModule() : _timerHello(this){

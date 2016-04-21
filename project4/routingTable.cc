@@ -10,7 +10,6 @@
 #include <click/packet.hh>
 
 #include "routingTable.hh" 
-#include "packet.hh"
 
 CLICK_DECLS 
 RoutingTable::RoutingTable(){}
@@ -64,11 +63,11 @@ RoutingTable::computeRoutingTable(const uint16_t sourceAddr, const uint16_t cost
     rtp->nextHop = Vector<uint16_t>();
     rtp->cost = cost;
 
-    if(this->routingTable.get(sourceAddr) == nullptr){
+    if(this->routingTable.get(sourceAddr) == NULL){
     	/* add new destination address */
     	rtp->nextHop.push_back(nextHop);
         rtp->hopCount = 1;
-        this->forwardingTable.set(sourceAddr, rtp);
+        this->routingTable.set(sourceAddr, rtp);
     }else if(cost < this->routingTable.get(sourceAddr)->cost){
     	/* update the cost of destination */
     	rtp->nextHop.push_back(nextHop);
@@ -77,7 +76,7 @@ RoutingTable::computeRoutingTable(const uint16_t sourceAddr, const uint16_t cost
     }else if(cost == this->routingTable.get(sourceAddr)->cost){
     	/* fetch all current next hop followed by a new next hop, build a new next hop structure */
 
-    	for(Vector<uint16_t>::iterator it = this->routingTable->nextHop.begin(); it != this->routingTable.get(sourceAddr)->nextHop.end(); ++it){
+    	for(Vector<uint16_t>::iterator it = this->routingTable.get(sourceAddr)->nextHop.begin(); it != this->routingTable.get(sourceAddr)->nextHop.end(); ++it){
     		rtp->nextHop.push_back(it);
     	}
 
@@ -92,11 +91,14 @@ RoutingTable::computeRoutingTable(const uint16_t sourceAddr, const uint16_t cost
 
 void
 RoutingTable::computeForwardingTable(const uint16_t sourceAddr, const uint16_t cost, const uint8_t port){
-    struct forwardingTableParam* ftp = new struct forwardingTableParam(); 
-    ftp->port = Vector<uint8_t>();
-    ftp->cost = cost;
 
-    if(this->forwardingTable.get(destAddr) == nullptr){
+   struct forwardingTableParam& ftp; 
+
+
+    ftp.port = Vector<uint8_t>();
+    ftp.cost = cost;
+
+    if(this->forwardingTable.get(sourceAddr) == NULL){
     	/* add new destination address */
     	ftp->port.push_back(port);
         ftp->portCount = 1;
@@ -108,7 +110,7 @@ RoutingTable::computeForwardingTable(const uint16_t sourceAddr, const uint16_t c
         this->forwardingTable.set(sourceAddr, ftp);
     }else if(cost == this->forwardingTable.get(sourceAddr)->cost){
     	/* fetch all current next hop followed by a new next hop, build a new next hop structure */
-    	for(Vecotr<uint8_t>::iterator it = this->forwardingTable->port.begin(); it != this->forwardingTable->port.end(); ++it){
+    	for(Vecotr<uint8_t>::iterator it = this->forwardingTable.get(sourceAddr)->port.begin(); it != this->forwardingTable.get(sourceAddr)->port.end(); ++it){
     		ftp->nextHop.push_back(it);
     	}
 

@@ -10,6 +10,9 @@
 #include <click/packet.hh>
 
 #include "updateModule.hh" 
+#include "packet.hh"
+#include "routingTable.hh"  
+#include "ackModule.hh"
 
 CLICK_DECLS 
 UpdateModule::UpdateModule()_timeUpdate(this){

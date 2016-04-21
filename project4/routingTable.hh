@@ -12,6 +12,8 @@
 #include <click/timer.hh>
 #include <click/vector.hh>
 #include <click/hashtable.hh>
+
+
 CLICK_DECLS
 
 class RoutingTable : public Element {
@@ -23,7 +25,7 @@ class RoutingTable : public Element {
         const char *port_count() const { return "1/1";}
         const char *processing() const { return PUSH; }
 		
-		    void push(int port, Packet *packet);
+		void push(int port, Packet *packet);
         int initialize();
 
         void updateRoutingTable(const uint16_t sourceAddr, const uint16_t cost, const uint16_t nextHop);
@@ -55,8 +57,17 @@ class RoutingTable : public Element {
         struct updateInfo{
             uint16_t sourceAddr;
             uint32_t cost;
-	  Vector<uint16_t> nextHop;
+	        Vector<uint16_t> nextHop;
         };
+
+       
+        struct forwardTableParam{
+            uint32_t cost;
+            uint8_t portCount; /* size of list port count */
+            Vector<uint8_t> port; /* store multiple port */
+        };
+
+        HashTable<uint16_t, struct forwardTableParam*> forwardingTable;
 
         struct routingTableParam{
             uint32_t cost;
@@ -64,15 +75,9 @@ class RoutingTable : public Element {
             Vector<uint16_t> nextHop; /*store multiple next hop*/
         };
 
-        HashTable<uint16_t, struct* routingTableParam> routingTable;
 
-        struct forwardTableParam{
-            uint32_t cost;
-            uint8_t portCount; /* size of list port count */
-            Vector<uint8_t> port; /* store multiple port */
-        };
+        HashTable<uint16_t, struct routingTableParam*> routingTable;
 
-        HashTable<uint16_t, struct* forwardTableParam> forwardingTable;
 
         uint32_t srcAddr;
         uint32_t destAddr;
