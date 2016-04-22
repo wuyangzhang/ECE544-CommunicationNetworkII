@@ -22,19 +22,19 @@ class RoutingTable : public Element {
         ~RoutingTable();
 
         const char *class_name() const { return "RoutingTable";}
-        const char *port_count() const { return "1/1";}
+        const char *port_count() const { return "0/0";}
         const char *processing() const { return PUSH; }
 		
 		void push(int port, Packet *packet);
-        int initialize();
+        int initialize(ErrorHandler* errh);
 
         void updateRoutingTable(const uint16_t sourceAddr, const uint16_t cost, const uint16_t nextHop);
         void updateForwardingTable(const uint16_t sourceAddr, const uint16_t cost, const uint8_t port);
         void updateRoutingTable(const uint16_t sourceAddr, const uint16_t cost, const uint16_t nextHop, const uint8_t sharedPath);
         void updateForwardingTable(const uint16_t sourceAddr, const uint16_t cost, const uint8_t port, const uint8_t sharedPath);
 
-        void computeRoutingTable(const uint16_t sourceAddr, const uint16_t cost, const uint16_t nextHop);
-        void computeForwardingTable(const uint16_t sourceAddr, const uint16_t cost, const uint8_t port);
+        void computeRoutingTable(const uint16_t sourceAddr, const uint32_t cost, const uint16_t nextHop);
+        void computeForwardingTable(const uint16_t sourceAddr, const uint32_t cost, const uint8_t port);
 
         int lookUpForwardingTable(uint32_t destAddr);
         void forwardingPacket(Packet *p, int port);

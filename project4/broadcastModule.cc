@@ -8,8 +8,7 @@
 #include <click/error.hh>
 #include <click/packet.hh>
 
-#include "packet.hh"
-#include "broadcastModule"
+#include "broadcastModule.hh"
 CLICK_DECLS 
 
 BroadcastModule::BroadcastModule(){}
@@ -26,19 +25,34 @@ BroadcastModule::initialize(){
 void 
 BroadcastModule::push(int port, Packet *packet) {
 
-	 click_chatter("[BroadcastModule] broadcast packet to all ports!");
-
+	 /*
+	 duplicate expensive packet model !
 	 WritablePacket *copy0 = packet->uniqueify();
 	 WritablePacket *copy1 = packet->uniqueify();
 	 WritablePacket *copy2 = packet->uniqueify();
 	 WritablePacket *copy3 = packet->uniqueify();
 	 WritablePacket *copy4 = packet->uniqueify();
 
+
 	 output(0).push(copy0);
 	 output(1).push(copy1);
 	 output(2).push(copy2);
 	 output(3).push(copy3);
 	 output(4).push(copy4);
+	*/
+	 Packet *p0 = packet->clone();
+ 	 Packet *p1 = packet->clone();
+	 Packet *p2 = packet->clone();
+	 Packet *p3 = packet->clone();
+	 Packet *p4 = packet->clone();
+
+	 output(0).push(p0);
+	 output(1).push(p1);
+	 output(2).push(p2);
+	 output(3).push(p3);
+	 output(4).push(p4);
+
+	 packet->kill();
 
 }
 

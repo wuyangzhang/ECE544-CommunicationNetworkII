@@ -13,12 +13,31 @@
 
 CLICK_DECLS 
 
-RoutingTable::RoutingTable(){}
+RoutingTable::RoutingTable(){
+     uint32_t srcAddr = 0;
+     uint32_t destAddr = 0;
+     uint32_t helloSequence = 0;
+     uint32_t updateSequence = 0;
+     forwardingTable = HashTable<uint16_t, struct forwardingTableParam*>() ;
+     routingTable = HashTable<uint16_t, struct routingTableParam*> ();
 
-RoutingTable::~RoutingTable(){}
+
+}
+
+RoutingTable::~RoutingTable(){
+    /* delete routing table && forwarding table */
+    for(HashTable<uint16_t,struct RoutingTable::routingTableParam*>::iterator it = this->routingTable.begin(); it != this->routingTable.end(); ++it){
+        delete it->value();
+    }
+
+    for(HashTable<uint16_t,struct RoutingTable::routingTableParam*>::iterator it = this->forwardingTable.begin(); it != this->forwardingTable.end(); ++it){
+        delete it->value();
+   }
+
+}
 
 int 
-RoutingTable::initialize(){
+RoutingTable::initialize(ErrorHandler* errh){
     return 0;
 }
 
@@ -58,72 +77,80 @@ RoutingTable::updateForwardingTable(const uint16_t sourceAddr, const uint16_t co
  * new cost == current cost, record new path
  */
 void
-RoutingTable::computeForwardingTable(const uint16_t sourceAddr, const uint16_t cost, const uint8_t port){
-    
+RoutingTable::computeForwardingTable(const uint16_t sourceAddr, const uint32_t cost, const uint8_t port){
+
     struct forwardingTableParam* ftp = new struct forwardingTableParam();
-    ftp->port = Vector<uint8_t>();
-    ftp->cost = cost;
 
     if(this->forwardingTable.get(sourceAddr) == NULL){
         /* add new destination address */
-
         ftp->port.push_back(port);
         ftp->portCount = 1;
+        ftp->cost = cost;
         this->forwardingTable.set(sourceAddr, ftp);
-    }else if(cost < this->forwardingTable.get(sourceAddr)->cost){
-        /* update the cost of destination */
-        ftp->port.push_back(port);
-        ftp->portCount = 1;
-        this->forwardingTable.set(sourceAddr, ftp);
-    }else if(cost == this->forwardingTable.get(sourceAddr)->cost){
-        /* fetch all current next hop followed by a new next hop, build a new next hop structure */
-        ftp->port = this->forwardingTable.get(sourceAddr)->port;
+    }else { /* destiantion exists ! */
 
-        /*
-        for(Vector<uint8_t>::iterator it = ftp.port.begin(); it != this->forwardingTable.get(sourceAddr)->port.end(); ++it){
-            ftp->port.push_back(it);
+        if(cost < this->forwardingTable.get(sourceAddr)->cost){
+            /* update the cost of destination */
+            ftp->port.push_back(port);
+            ftp->portCount = 1;
+            ftp->cost = cost;
+            this->forwardingTable.set(sourceAddr, ftp);
         }
-        */
-        ftp->port.push_back(port);
-        ftp->portCount = ftp->port.size();
-        this->forwardingTable.set(sourceAddr, ftp);
+
+        if(cost == this->forwardingTable.get(sourceAddr)->cost){
+            if(port != this->forwardingTable.get(sourceAddr)->hop.front()){
+                /* fetch all current next hop followed by a new next hop, build a new next hop structure */
+                ftp->port = this->forwardingTable.get(sourceAddr)->port;
+                ftp->port.push_back(port);
+                ftp->portCount = ftp->port.size();
+                ftp->cost = cost;
+                this->forwardingTable.set(sourceAddr, ftp);
+            }
+            
+        }
     }
-    delete ftp;
+
 }
 
 
 void 
-RoutingTable::computeRoutingTable(const uint16_t sourceAddr, const uint16_t cost, const uint16_t nextHop){
-
+RoutingTable::computeRoutingTable(const uint16_t sourceAddr, const uint32_t cost, const uint16_t nextHop){
+    
     struct routingTableParam* rtp = new struct routingTableParam(); 
-    rtp->nextHop = Vector<uint16_t>();
-    rtp->cost = cost;
 
     if(this->routingTable.get(sourceAddr) == NULL){
     	/* add new destination address */
-    	rtp->nextHop.push_back(nextHop);
         rtp->hopCount = 1;
+        rtp->cost = cost;
+        rtp->nextHop.push_back(nextHop);
         this->routingTable.set(sourceAddr, rtp);
-    }else if(cost < this->routingTable.get(sourceAddr)->cost){
-    	/* update the cost of destination */
-    	rtp->nextHop.push_back(nextHop);
-        rtp->hopCount = 1;
-        this->routingTable.set(sourceAddr, rtp);
-    }else if(cost == this->routingTable.get(sourceAddr)->cost){
-    	/* fetch all current next hop followed by a new next hop, build a new next hop structure */
-        /*
-    	for(Vector<uint16_t>::iterator it = this->routingTable.get(sourceAddr)->nextHop.begin(); it != this->routingTable.get(sourceAddr)->nextHop.end(); ++it){
-    		rtp->nextHop.push_back(it);
-    	}
-        */
 
-        rtp->nextHop = this->routingTable.get(sourceAddr)->nextHop;
-    	rtp->nextHop.push_back(nextHop);
-        rtp->hopCount = rtp->nextHop.size();
-        this->routingTable.set(sourceAddr, rtp);
+
+    }else {  /* destiantion exists ! */
+
+        if(cost < this->routingTable.get(sourceAddr)->cost){
+            /* update the cost of destination */
+            rtp->hopCount = 1;
+            rtp->cost = cost;
+            rtp->nextHop.push_back(nextHop);
+            this->routingTable.set(sourceAddr, rtp); /* reset the cost & next hop for this destination */
+
+        }
+
+        if(cost == this->routingTable.get(sourceAddr)->cost){
+            /* fetch all current next hop followed by a new next hop, build a new next hop structure */
+            if(nextHop != this->routingTable.get(sourceAddr)->nextHop.front()){
+                rtp->nextHop = this->routingTable.get(sourceAddr)->nextHop;
+                rtp->nextHop.push_back(nextHop);
+                rtp->hopCount = rtp->nextHop.size();
+                rtp->cost = cost;
+                this->routingTable.set(sourceAddr, rtp);
+            }
+        
+        }
     }
 
-    delete rtp;
+
 }
 
 
@@ -140,19 +167,27 @@ RoutingTable::lookUpForwardingTable(uint32_t destAddr){
 
 void 
 RoutingTable::forwardingPacket(Packet *p, int port){
-    output(port).push(p);
-    click_chatter("[Router] forwarding packet to port %d", port);
+    
 }
 
 void 
 RoutingTable::printRoutingTable(){
 
+    for(HashTable<uint16_t,struct RoutingTable::routingTableParam*>::iterator it = this->routingTable.begin(); it != this->routingTable.end(); ++it){
+        for(Vector<uint16_t>::iterator list = it.value()->nextHop.begin(); list != it.value()->nextHop.end(); ++list){
+            click_chatter("[destinaion] %d | [cost] %d | [next hop] %d \n", it.key(), it.value()->cost, *list);
+        }
+   }
 }
 
 
 void
 RoutingTable::printForwardingTable(){
-
+    for(HashTable<uint16_t,struct RoutingTable::forwardingTableParam*>::iterator it = this->forwardingTable.begin(); it != this->forwardingTable.end(); ++it){
+            for(Vector<uint16_t>::iterator list = it.value()->port.begin(); list != it.value()->port.end(); ++list){
+                click_chatter("[destinaion] %d | [cost] %d | [next hop] %d \n", it.key(), it.value()->cost, *list);
+            }
+       }
 }
 
 CLICK_ENDDECLS 

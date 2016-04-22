@@ -11,8 +11,7 @@
 
 #include "helloModule.hh"
 #include "packet.hh" 
-#include "routingTable.hh"
-#include "ackModule.hh"
+
 
 CLICK_DECLS 
 HelloModule::HelloModule() : _timerHello(this){
@@ -21,6 +20,7 @@ HelloModule::HelloModule() : _timerHello(this){
 	this->_delay = 0;
 	this->_period = 5;
 	this->_timeout = 1;
+
 }
 
 HelloModule::~HelloModule(){}
@@ -31,26 +31,31 @@ HelloModule::initialize(ErrorHandler *errh){
 	if(this->_delay > 0 ){
 		_timerHello.schedule_after_sec(this->_delay);
 	}
-    return 0;
+
+  _timerHello.schedule_after_sec(this->_period);
+  return 0;
 }
 
 int
 HelloModule::configure(Vector<String>&conf, ErrorHandler* errh){
   if (cp_va_kparse(conf, this, errh,
               "MY_ADDRESS", cpkP+cpkM, cpUnsigned, &_myAddr,
+              "ACK_TABLE", cpkP+cpkM, cpElement, &ackModule,
+              "ROUTING_TABLE", cpkP+cpkM, cpElement, &routingTable,
               "DELAY", cpkP, cpUnsigned, &_delay,
               "PERIOD", cpkP, cpUnsigned, &_period,
               "TIME_OUT", cpkP, cpUnsigned, &_timeout,
-              "ACK_TABLE", cpkP+cpkM, cpElement, &ackModule,
-              "ROUTING_TABLE", cpkP+cpkM, cpElement, &routingTable,
+              
               cpEnd) < 0) {
 	return -1;
   }
+
   return 0;
 }
 
 void
 HelloModule::run_timer(Timer* timer){
+
 	if(timer == &_timerHello){
 		this->sendHello();
 	}
@@ -70,18 +75,21 @@ HelloModule::push(int port, Packet *packet) {
 	assert(packet);
 	/* it is a hello packet with additional input port info*/
 	uint8_t* portNum = (uint8_t*)packet->data();
-	struct HelloPacket* HelloPacket = (struct HelloPacket*)(portNum+1);
-
- 	click_chatter("[MulticastRouter] Receiving Hello Packet from Source %d with sequence %d from port %d", HelloPacket->sourceAddr, HelloPacket->sequenceNumber, *portNum);
+	struct HelloPacket* helloPacket = (struct HelloPacket*)(portNum+1);
 
     /* update routing table */
-    this->routingTable->computeRoutingTable(HelloPacket->sourceAddr, 1, HelloPacket->sourceAddr);
+    click_chatter("[HelloModule] port %d, addr %d!", *portNum, helloPacket->sourceAddr);
+
+    click_chatter("[HelloModule] call computeRoutingTable!");
+    this->routingTable->computeRoutingTable(helloPacket->sourceAddr, 1, helloPacket->sourceAddr);
 
     /* update forwarding table */
-    this->routingTable->computeForwardingTable(HelloPacket->sourceAddr, 1, *portNum);
+    this->routingTable->computeForwardingTable(helloPacket->sourceAddr, 1, *portNum);
 
     /* send back ack */
-    this->sendAck(*portNum, HelloPacket->sequenceNumber, HelloPacket->sourceAddr);
+    this->sendAck(*portNum, helloPacket->sequenceNumber, helloPacket->sourceAddr);
+
+    packet->kill();
 }
 
 
@@ -90,16 +98,17 @@ HelloModule::sendHello(){
 	if(ackModule->ackTable.get(this->helloSequence) == true){
 		this->helloSequence++;
 	}
+    //click_chatter("[HelloModule] Sending Hello Message with sequence %d", this->helloSequence);
+
     WritablePacket *helloPacket = Packet::make(0,0,sizeof(struct HelloPacket), 0);
+
     memset(helloPacket->data(), 0, helloPacket->length());
     struct HelloPacket *format = (struct HelloPacket*) helloPacket->data();
     format->type = HELLO;
     format->sourceAddr = this->_myAddr;
     format->sequenceNumber = this->helloSequence;
-
     output(0).push(helloPacket);
 
-    click_chatter("[MulticastRouter] Sending Hello Message with sequence %d", this->helloSequence);
 }
 
 void
@@ -118,6 +127,7 @@ HelloModule::sendAck(const uint8_t portNum, const uint8_t sequenceNumber, const 
     *port = *((uint8_t*)(&portNum));
 
     output(1).push(q);
+
 }
 CLICK_ENDDECLS 
 EXPORT_ELEMENT(HelloModule)

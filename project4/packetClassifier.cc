@@ -13,7 +13,9 @@
 #include "packet.hh"
 
 CLICK_DECLS 
-PacketClassifier::PacketClassifier(){}
+PacketClassifier::PacketClassifier(){
+
+}
 
 PacketClassifier::~PacketClassifier(){}
 
@@ -25,6 +27,7 @@ PacketClassifier::initialize(ErrorHandler *errh){
 /* classify packet according to packet type */
 void 
 PacketClassifier::push(int port, Packet *p) {
+
 	assert(p);
 	struct PacketType *header = (struct PacketType *) p->data();
 

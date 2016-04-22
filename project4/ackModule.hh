@@ -20,13 +20,13 @@ class AckModule : public Element {
     ~AckModule();
 
     const char *class_name() const { return "AckModule";}
-    const char *port_count() const { return "1/1";}
+    const char *port_count() const { return "2/1-";}
     const char *processing() const { return PUSH; }
 
     void push(int port, Packet *packet);
     int initialize(ErrorHandler*);
 
-    //void sendAck(const uint8_t portNum, const uint8_t sequenceNumber, const uint16_t sourceAddr);
+    void sendAck(Packet *packet);
 
     /* maintain ack table for hello, update, data */
     HashTable<uint8_t, bool>ackTable;

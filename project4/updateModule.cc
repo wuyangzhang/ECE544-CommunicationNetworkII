@@ -24,16 +24,25 @@ UpdateModule::UpdateModule() : _timerUpdate(this){
 
 UpdateModule::~UpdateModule(){}
 
+/*
 int 
-UpdateModule::initialize(){
+UpdateModule::initialize(ErrorHandler *errh){
+  this->_timerUpdate.initialize(this);
+  if(this->_delay > 0 ){
+    _timerUpdate.schedule_after_sec(this->_delay);
+
+  }
+
+  _timerUpdate.schedule_after_sec(this->_period);
+
     return 0;
 }
-
+*/
 
 void
 UpdateModule::run_timer(Timer* timer){
   if(timer == &_timerUpdate){
-    this->sendUpdate();
+    //this->sendUpdate();
   }
   _timerUpdate.reschedule_after_sec(this->_period);
 }
@@ -43,11 +52,11 @@ int
 UpdateModule::configure(Vector<String>&conf, ErrorHandler* errh){
  if (cp_va_kparse(conf, this, errh,
               "MY_ADDRESS", cpkP+cpkM, cpUnsigned, &_myAddr,
+              "ACK_TABLE", cpkP+cpkM, cpElement, &ackModule,
+              "ROUTING_TABLE", cpkP+cpkM, cpElement, &routingTable,
               "DELAY", cpkP, cpUnsigned, &_delay,
               "PERIOD", cpkP, cpUnsigned, &_period,
               "TIME_OUT", cpkP, cpUnsigned, &_timeout,
-              "ACK_TABLE", cpkP+cpkM, cpElement, &ackModule,
-              "ROUTING_TABLE", cpkP+cpkM, cpElement, &routingTable,
               cpEnd) < 0) {
   return -1;
   }
@@ -64,18 +73,20 @@ void
 UpdateModule::push(int port, Packet *packet) {
   assert(packet);
 	/* it is a update packet with additional input port info*/
+
+
 	uint8_t* portNum = (uint8_t*)packet->data();
 	struct UpdatePacket* updatePacket = (struct UpdatePacket*)(portNum+1);
 
- 	click_chatter("[MulticastRouter] Receiving Update Packet from Source %d with sequence %d from port %d", updatePacket->sourceAddr, updatePacket->sequenceNumber, *portNum);
+ 	click_chatter("[UpdateModule] Receiving Update Packet from Source %d with sequence %d from port %d", updatePacket->sourceAddr, updatePacket->sequenceNumber, *portNum);
 
   /* update routing table && forwarding table */
   uint16_t routingTableRowCount = updatePacket->length;
 
-  uint16_t* castSrcAddr = new uint16_t;
-  uint32_t* castCost = new uint32_t;
-  uint16_t* castHopCount = new uint16_t;
-  uint16_t* castNextHop = new uint16_t;
+  uint16_t* castSrcAddr ;
+  uint32_t* castCost ;
+  uint16_t* castHopCount ;
+  uint16_t* castNextHop ;
 
   castSrcAddr = (uint16_t*)(updatePacket+1);
   for(uint16_t i = 0; i < routingTableRowCount; i++){
@@ -84,6 +95,8 @@ UpdateModule::push(int port, Packet *packet) {
     castNextHop = (uint16_t*)(castHopCount+1);
     
     for(uint16_t i = 0; i< *castHopCount; i++){
+        click_chatter("[UpdateModule] call computeRoutingTable!");
+
         this->routingTable->computeRoutingTable( *castSrcAddr, (*castCost) + 1, *castNextHop); /* castCost + 1 -> 1 hop to its neighbor */
         this->routingTable->computeForwardingTable( *castSrcAddr, (*castCost) + 1, *portNum);
         castNextHop++;
@@ -93,13 +106,12 @@ UpdateModule::push(int port, Packet *packet) {
 
   }
 
-  delete castSrcAddr;
-  delete castCost;
-  delete castHopCount;
-  delete castNextHop;
 
   /* send back ack */
   this->sendAck(*portNum, updatePacket->sequenceNumber, updatePacket->sourceAddr);
+  this->routingTable->printRoutingTable();
+
+  packet->kill();
 }
 
 /* sendUpdate()
@@ -119,15 +131,21 @@ UpdateModule::sendUpdate(){
    *     List<uint16_t> nextHop; 
    *--------------------------------------------------------
  */
+
   if(ackModule->ackTable.get(this->updateSequence) == true){
     this->updateSequence++;
   }
+  
   int routingTableSize = 0;
   int routingTableRowCount = 0;
   for(HashTable<uint16_t,struct RoutingTable::routingTableParam*>::iterator it = this->routingTable->routingTable.begin(); it; ++it){
-      routingTableSize += ( sizeof(uint32_t) + sizeof(uint16_t) + sizeof(uint16_t) * it.value()->hopCount );
+      routingTableSize += ( sizeof(uint16_t) + sizeof(uint32_t) + sizeof(uint16_t) + sizeof(uint16_t) * it.value()->hopCount );
+       /* src uint16_t + cost uint32_t + hopCount uint16_t + nextHop uint16_t*hopCount */
       routingTableRowCount++;
   }
+  
+
+  this->routingTable->printRoutingTable();
 
   WritablePacket *updatePacket = Packet::make(0,0, sizeof(struct UpdatePacket)+ routingTableSize, 0);
   memset(updatePacket->data(), 0, updatePacket->length());
@@ -135,45 +153,50 @@ UpdateModule::sendUpdate(){
   format->type = UPDATE;
   format->sourceAddr = this->_myAddr;
   format->sequenceNumber = this->updateSequence;
-  format->length = routingTableRowCount; /* length of payload */
+  format->length = *((uint16_t*)(&routingTableRowCount)); /* length of payload */
+
 
   /* write payload as routing table info, with looping struct pointer to write payload*/
 
-  uint16_t* castSrcAddr = new uint16_t;
-  uint32_t* castCost = new uint32_t;
-  uint16_t* castHopCount = new uint16_t;
-  uint16_t* castNextHop = new uint16_t;
+
+  uint16_t* castSrcAddr ;
+  uint32_t* castCost ;
+  uint16_t* castHopCount ;
+  uint16_t* castNextHop;
 
   castSrcAddr = (uint16_t*)(format+1);
 
-  for(HashTable<uint16_t,struct RoutingTable::routingTableParam*>::iterator it = this->routingTable->routingTable.begin(); it; ++it){
+/*
+  if(!this->routingTable->routingTable.empty()){
 
-    *castSrcAddr = it.key();
+      for(HashTable<uint16_t,struct RoutingTable::routingTableParam*>::iterator it = this->routingTable->routingTable.begin(); it != this->routingTable->routingTable.end(); ++it){
 
-    castCost = (uint32_t*)(castSrcAddr+1);
-    *castCost = it.value()->cost;
+          *castSrcAddr = it.key();
 
-    castHopCount = (uint16_t*)(castCost+1);
-    *castHopCount = it.value()->hopCount;
+          castCost = (uint32_t*)(castSrcAddr+1);
+          *castCost = it.value()->cost;
 
-    castNextHop = castHopCount + 1;
-    
-    for(Vector<uint16_t>::iterator list = it.value()->nextHop.begin(); list; ++list){
-       *castNextHop = *list;
-       castNextHop++;
-    }
+          castHopCount = (uint16_t*)(castCost+1);
+          *castHopCount = it.value()->hopCount;
 
-    castSrcAddr = castNextHop;
+          castNextHop = castHopCount + 1;
+          for(Vector<uint16_t>::iterator list = it.value()->nextHop.begin(); list != it.value()->nextHop.end(); ++list){
+             *castNextHop = *list;
+             castNextHop++;
+
+             click_chatter("[UpdateModule 1] srcadrr %d, cost %d, hop count %d, nextHop %d", it.key(), it.value()->cost, it.value()->hopCount, *list);
+
+             click_chatter("[UpdateModule 2] srcadrr %d, cost %d, hop count %d, nextHop %d", *castSrcAddr, *castCost, *castHopCount, *castNextHop);
+
+          }
+
+          castSrcAddr = castNextHop;
+        }
   }
+ */
 
-  delete castSrcAddr;
-  delete castCost;
-  delete castHopCount;
-  delete castNextHop;
 
   output(0).push(updatePacket);
-
-  click_chatter("[MulticastRouter] Sending Update Message with sequence %d", this->updateSequence);
 }
 
 

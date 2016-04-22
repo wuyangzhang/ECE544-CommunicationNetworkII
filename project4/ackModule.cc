@@ -18,27 +18,31 @@ AckModule::AckModule(){}
 AckModule::~AckModule(){}
 
 int 
-AckModule::initialize(ErrorHandler *errh){
+AckModule::initialize(ErrorHandler* errh){
     return 0;
 }
 
 void 
 AckModule::push(int port, Packet *packet) {
 	assert(packet);
-	struct AckPacket* ackPacket = (struct AckPacket*)packet->data();
-
-	ackTable.set(ackPacket->sequenceNumber, true);
-	click_chatter("[MulticastRouter] Receiving Update Packet from Source %d with sequence %d", ackPacket->sourceAddr, ackPacket->sequenceNumber);
-
-	packet->kill();
+	if(port == 0){
+		struct AckPacket* ackPacket = (struct AckPacket*)packet->data();
+		ackTable.set(ackPacket->sequenceNumber, true);
+		//click_chatter("[AckModule] Receiving Ack Packet from Source %d with sequence %d", ackPacket->sourceAddr, ackPacket->sequenceNumber);
+		packet->kill();
+	}else if(port ==1){
+		this->sendAck(packet);
+	}
+	
 }
 
-/* deprecated
 void
-AckModule::sendAck(const uint8_t portNum, const uint8_t sequenceNumber, const uint16_t sourceAddr){
-
+AckModule::sendAck(Packet *packet){
+	uint8_t* port = (uint8_t*)packet->data();
+	packet->pull(sizeof(uint8_t));
+	output(*port).push(packet);
 }
-*/
+
 CLICK_ENDDECLS 
 EXPORT_ELEMENT(AckModule)
 
