@@ -26,14 +26,13 @@ RoutingTable::RoutingTable(){
 
 RoutingTable::~RoutingTable(){
     /* delete routing table && forwarding table */
-    for(HashTable<uint16_t,struct RoutingTable::routingTableParam*>::iterator it = this->routingTable.begin(); it != this->routingTable.end(); ++it){
-        delete it->value();
-    }
-
-    for(HashTable<uint16_t,struct RoutingTable::routingTableParam*>::iterator it = this->forwardingTable.begin(); it != this->forwardingTable.end(); ++it){
-        delete it->value();
+   for(HashTable<uint16_t,struct RoutingTable::routingTableParam*>::iterator it = this->routingTable.begin(); it != this->routingTable.end(); ++it){
+       delete it.value();
    }
 
+   for(HashTable<uint16_t,struct RoutingTable::forwardingTableParam*>::iterator it = this->forwardingTable.begin(); it != this->forwardingTable.end(); ++it){
+       delete it.value();
+   }
 }
 
 int 
@@ -98,7 +97,7 @@ RoutingTable::computeForwardingTable(const uint16_t sourceAddr, const uint32_t c
         }
 
         if(cost == this->forwardingTable.get(sourceAddr)->cost){
-            if(port != this->forwardingTable.get(sourceAddr)->hop.front()){
+            if(port != this->forwardingTable.get(sourceAddr)->port.front()){
                 /* fetch all current next hop followed by a new next hop, build a new next hop structure */
                 ftp->port = this->forwardingTable.get(sourceAddr)->port;
                 ftp->port.push_back(port);
@@ -155,20 +154,21 @@ RoutingTable::computeRoutingTable(const uint16_t sourceAddr, const uint32_t cost
 
 
 
-
 int 
-RoutingTable::lookUpForwardingTable(uint32_t destAddr){
+RoutingTable::lookUpForwardingTable(uint16_t destAddr){
 
-    int matchPort = -1;
-    
-    return matchPort;
+    /* check forwarding table */
+    /* Unicast Model! */
+    for(HashTable<uint16_t,struct RoutingTable::forwardingTableParam*>::iterator it = this->forwardingTable.begin(); it != this->forwardingTable.end(); ++it){
+        if(it.key() == destAddr){
+            return it.value()->port.front();
+        }
+    }
+
+    return -1;
 }
 
 
-void 
-RoutingTable::forwardingPacket(Packet *p, int port){
-    
-}
 
 void 
 RoutingTable::printRoutingTable(){
@@ -184,8 +184,8 @@ RoutingTable::printRoutingTable(){
 void
 RoutingTable::printForwardingTable(){
     for(HashTable<uint16_t,struct RoutingTable::forwardingTableParam*>::iterator it = this->forwardingTable.begin(); it != this->forwardingTable.end(); ++it){
-            for(Vector<uint16_t>::iterator list = it.value()->port.begin(); list != it.value()->port.end(); ++list){
-                click_chatter("[destinaion] %d | [cost] %d | [next hop] %d \n", it.key(), it.value()->cost, *list);
+            for(Vector<uint8_t>::iterator list = it.value()->port.begin(); list != it.value()->port.end(); ++list){
+                click_chatter("[destinaion] %d | [cost] %d | [port] %d \n", it.key(), it.value()->cost, *list);
             }
        }
 }

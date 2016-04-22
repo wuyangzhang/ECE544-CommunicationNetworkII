@@ -72,15 +72,13 @@ HelloModule::run_timer(Timer* timer){
  */
 void 
 HelloModule::push(int port, Packet *packet) {
-	assert(packet);
-	/* it is a hello packet with additional input port info*/
-	uint8_t* portNum = (uint8_t*)packet->data();
-	struct HelloPacket* helloPacket = (struct HelloPacket*)(portNum+1);
+  	assert(packet);
+  	/* it is a hello packet with additional input port info*/
+  	uint8_t* portNum = (uint8_t*)packet->data();
+  	struct HelloPacket* helloPacket = (struct HelloPacket*)(portNum+1);
 
     /* update routing table */
-    click_chatter("[HelloModule] port %d, addr %d!", *portNum, helloPacket->sourceAddr);
-
-    click_chatter("[HelloModule] call computeRoutingTable!");
+    //click_chatter("[HelloModule] call computeRoutingTable!");
     this->routingTable->computeRoutingTable(helloPacket->sourceAddr, 1, helloPacket->sourceAddr);
 
     /* update forwarding table */

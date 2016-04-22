@@ -25,8 +25,8 @@ class UpdateModule : public Element {
     const char *port_count() const { return "1/1-";}
     const char *processing() const { return PUSH; }
     void run_timer(Timer*);
-    //int initialize(ErrorHandler*);
-    int initialize();
+    int initialize(ErrorHandler*);
+//    int initialize();
 
     int configure(Vector<String>&, ErrorHandler*);
 

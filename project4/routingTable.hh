@@ -36,8 +36,7 @@ class RoutingTable : public Element {
         void computeRoutingTable(const uint16_t sourceAddr, const uint32_t cost, const uint16_t nextHop);
         void computeForwardingTable(const uint16_t sourceAddr, const uint32_t cost, const uint8_t port);
 
-        int lookUpForwardingTable(uint32_t destAddr);
-        void forwardingPacket(Packet *p, int port);
+        int lookUpForwardingTable(uint16_t destAddr);
 
         void printRoutingTable();
         void printForwardingTable();

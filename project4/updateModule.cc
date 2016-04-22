@@ -24,7 +24,7 @@ UpdateModule::UpdateModule() : _timerUpdate(this){
 
 UpdateModule::~UpdateModule(){}
 
-/*
+
 int 
 UpdateModule::initialize(ErrorHandler *errh){
   this->_timerUpdate.initialize(this);
@@ -37,12 +37,12 @@ UpdateModule::initialize(ErrorHandler *errh){
 
     return 0;
 }
-*/
+
 
 void
 UpdateModule::run_timer(Timer* timer){
   if(timer == &_timerUpdate){
-    //this->sendUpdate();
+    this->sendUpdate();
   }
   _timerUpdate.reschedule_after_sec(this->_period);
 }

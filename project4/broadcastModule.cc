@@ -25,21 +25,7 @@ BroadcastModule::initialize(){
 void 
 BroadcastModule::push(int port, Packet *packet) {
 
-	 /*
-	 duplicate expensive packet model !
-	 WritablePacket *copy0 = packet->uniqueify();
-	 WritablePacket *copy1 = packet->uniqueify();
-	 WritablePacket *copy2 = packet->uniqueify();
-	 WritablePacket *copy3 = packet->uniqueify();
-	 WritablePacket *copy4 = packet->uniqueify();
-
-
-	 output(0).push(copy0);
-	 output(1).push(copy1);
-	 output(2).push(copy2);
-	 output(3).push(copy3);
-	 output(4).push(copy4);
-	*/
+	 
 	 Packet *p0 = packet->clone();
  	 Packet *p1 = packet->clone();
 	 Packet *p2 = packet->clone();
