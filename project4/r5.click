@@ -13,18 +13,17 @@ define($dev10 veth10, $addrDev10 0a:37:4c:6b:45:66)
 
 
 // ************************* define router output link ! **********************************************************************
-rp0::RouterPort(DEV $dev7, IN_MAC $addrDev7, OUT_MAC $addrDev8)
-rp1::RouterPort(DEV $dev6, IN_MAC $addrDev6, OUT_MAC $addrDev5)
-rp2::RouterPort(DEV $dev9, IN_MAC $addrDev9, OUT_MAC $addrDev10)
+rp0::RouterPort(DEV $dev10, IN_MAC $addrDev10, OUT_MAC $addrDev9)
+//rp1::RouterPort(DEV $dev3, IN_MAC $addrDev3, OUT_MAC $addrDev4)
 
 
 cl::PacketClassifier()
-rt::RoutingTable()
 ack::AckModule()
 
 // ************************* @initiate address ! **********************************************************************
-hello::HelloModule(MY_ADDRESS 3, DELAY 1, PERIOD 5, TIME_OUT 2, ACK_TABLE ack, ROUTING_TABLE rt)
-update::UpdateModule(MY_ADDRESS 3,DELAY 5, PERIOD 5, TIME_OUT 2,  ACK_TABLE ack, ROUTING_TABLE rt)
+rt::RoutingTable(MY_ADDRESS 5)
+hello::HelloModule(MY_ADDRESS 5, DELAY 1, PERIOD 5, TIME_OUT 2, ACK_TABLE ack, ROUTING_TABLE rt)
+update::UpdateModule(MY_ADDRESS 5,DELAY 5, PERIOD 5, TIME_OUT 2,  ACK_TABLE ack, ROUTING_TABLE rt)
 
 data::DataModule(ROUTING_TABLE rt)
 bd::BroadcastModule()
@@ -32,8 +31,7 @@ bd::BroadcastModule()
 
 // ************************* @all input ports forward packets to Packet Classifier !*************************
 rp0->cl
-rp1->cl
-rp2->cl
+//rp1->cl
 
 // packet classifier outport 0: hello, outport1: update, outport2: ack, output3: data
 // ack inport 0: receive ack packet, update ack table, inport 1: send out ack
@@ -52,12 +50,10 @@ update[1]->[1]ack
 
 // *************************@ack connect to all valid out port !*************************
 ack[0]->rp0
-ack[1]->rp1
-ack[2]->rp2
 
 // *************************@broadcast packet to all valid out ports !*************************
 bd[0]->rp0
-bd[1]->rp1
-bd[2]->rp2
+bd[1]->Discard
+bd[2]->Discard
 bd[3]->Discard
 bd[4]->Discard

@@ -14,13 +14,10 @@
 CLICK_DECLS 
 
 RoutingTable::RoutingTable(){
-     uint32_t srcAddr = 0;
-     uint32_t destAddr = 0;
-     uint32_t helloSequence = 0;
-     uint32_t updateSequence = 0;
-     forwardingTable = HashTable<uint16_t, struct forwardingTableParam*>() ;
-     routingTable = HashTable<uint16_t, struct routingTableParam*> ();
-
+     _myAddr = 0;
+     destAddr = 0;
+     helloSequence = 0;
+     updateSequence = 0;
 
 }
 
@@ -37,8 +34,37 @@ RoutingTable::~RoutingTable(){
 
 int 
 RoutingTable::initialize(ErrorHandler* errh){
-    return 0;
+    return 0; 
 }
+
+
+int 
+RoutingTable::configure(Vector<String>& conf, ErrorHandler* errh){
+    if (cp_va_kparse(conf, this, errh,
+              "MY_ADDRESS", cpkP+cpkM, cpUnsigned, &_myAddr,
+              cpEnd) < 0) {
+        return -1;
+     }
+
+
+    /* update self routing, forwarding info */
+    
+    struct routingTableParam* rtp = new struct routingTableParam(); 
+    rtp->hopCount = 1;
+    rtp->cost = 0;
+    rtp->nextHop.push_back(0);
+    this->routingTable.set(_myAddr, rtp);
+
+    struct forwardingTableParam* ftp = new struct forwardingTableParam();
+    ftp->port.push_back(0);
+    ftp->portCount = 1;
+    ftp->cost = 0;
+    this->forwardingTable.set(_myAddr, ftp);
+    
+     return 0;
+}
+
+
 
 void 
 RoutingTable::push(int port, Packet *packet) {

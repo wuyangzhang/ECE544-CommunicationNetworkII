@@ -97,7 +97,7 @@ UpdateModule::push(int port, Packet *packet) {
     for(uint16_t i = 0; i< *castHopCount; i++){
         click_chatter("[UpdateModule] call computeRoutingTable!");
 
-        this->routingTable->computeRoutingTable( *castSrcAddr, (*castCost) + 1, *castNextHop); /* castCost + 1 -> 1 hop to its neighbor */
+        this->routingTable->computeRoutingTable( *castSrcAddr, (*castCost) + 1, updatePacket->sourceAddr); /* castCost + 1 -> 1 hop to its neighbor */
         this->routingTable->computeForwardingTable( *castSrcAddr, (*castCost) + 1, *portNum);
         castNextHop++;
     }
@@ -166,7 +166,7 @@ UpdateModule::sendUpdate(){
 
   castSrcAddr = (uint16_t*)(format+1);
 
-/*
+
   if(!this->routingTable->routingTable.empty()){
 
       for(HashTable<uint16_t,struct RoutingTable::routingTableParam*>::iterator it = this->routingTable->routingTable.begin(); it != this->routingTable->routingTable.end(); ++it){
@@ -183,17 +183,12 @@ UpdateModule::sendUpdate(){
           for(Vector<uint16_t>::iterator list = it.value()->nextHop.begin(); list != it.value()->nextHop.end(); ++list){
              *castNextHop = *list;
              castNextHop++;
-
-             click_chatter("[UpdateModule 1] srcadrr %d, cost %d, hop count %d, nextHop %d", it.key(), it.value()->cost, it.value()->hopCount, *list);
-
-             click_chatter("[UpdateModule 2] srcadrr %d, cost %d, hop count %d, nextHop %d", *castSrcAddr, *castCost, *castHopCount, *castNextHop);
-
           }
 
           castSrcAddr = castNextHop;
         }
   }
- */
+ 
 
 
   output(0).push(updatePacket);

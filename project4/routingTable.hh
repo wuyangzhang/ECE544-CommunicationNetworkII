@@ -27,6 +27,7 @@ class RoutingTable : public Element {
 		
 		void push(int port, Packet *packet);
         int initialize(ErrorHandler* errh);
+        int configure(Vector<String>&, ErrorHandler*);
 
         void updateRoutingTable(const uint16_t sourceAddr, const uint16_t cost, const uint16_t nextHop);
         void updateForwardingTable(const uint16_t sourceAddr, const uint16_t cost, const uint8_t port);
@@ -78,7 +79,7 @@ class RoutingTable : public Element {
         HashTable<uint16_t, struct routingTableParam*> routingTable;
 
 
-        uint32_t srcAddr;
+        uint32_t _myAddr;
         uint32_t destAddr;
         uint32_t helloSequence;
         uint32_t updateSequence;
