@@ -89,15 +89,17 @@ DataModule::push(int port, Packet *packet) {
 
       if(bitmapS == 0){
          click_chatter("[DataModule] split packet from %d to destinationAddr1 %d, destinationAddr2 %d",dataPacket->sourceAddr, destinationAddr1, destinationAddr2);
-         Packet *pclone1 = packet->clone();
-         Packet *pclone2 = packet->clone();
-         WritablePacket *p1 = pclone1->uniqueify();
-         WritablePacket *p2 = pclone2->uniqueify();
+          WritablePacket *p1 = Packet::make(0,0,packet->length(),0);
+          memcpy(p1->data(), packet->data(),packet->length());
+
+          WritablePacket *p2 = Packet::make(0,0,packet->length(),0);
+          memcpy(p2->data(), packet->data(),packet->length());
+
          struct DataPacket *dataPacket1 = (struct DataPacket*) p1->data();
          struct DataPacket *dataPacket2 = (struct DataPacket*) p2->data();
          dataPacket1->k_value = 1;
          dataPacket2->k_value = 1;
-         dataPacket1->destinationAddr1 = destinationAddr1;
+         //dataPacket1->destinationAddr1 = destinationAddr1;
          dataPacket2->destinationAddr1 = destinationAddr2;
          output(forwardingPortSet1.front()).push(p1);
          output(forwardingPortSet2.front()).push(p2);
@@ -142,9 +144,15 @@ DataModule::push(int port, Packet *packet) {
       }
       /* no shared path */
       if(bitmapS == 0){
-         WritablePacket *p1 = packet->uniqueify();
-         WritablePacket *p2 = packet->uniqueify();
-         WritablePacket *p3 = packet->uniqueify();
+          WritablePacket *p1 = Packet::make(0,0,packet->length(),0);
+          memcpy(p1->data(), packet->data(),packet->length());
+
+          WritablePacket *p2 = Packet::make(0,0,packet->length(),0);
+          memcpy(p2->data(), packet->data(),packet->length());
+
+          WritablePacket *p3 = Packet::make(0,0,packet->length(),0);
+          memcpy(p3->data(), packet->data(),packet->length());
+
          struct DataPacket *dataPacket1 = (struct DataPacket*) p1->data();
          struct DataPacket *dataPacket2 = (struct DataPacket*) p2->data();
          struct DataPacket *dataPacket3 = (struct DataPacket*) p3->data();
@@ -169,9 +177,15 @@ DataModule::push(int port, Packet *packet) {
             bitmapS = bitmapS >> 1;
             sharedPort++;
           }
-           WritablePacket *p1 = packet->uniqueify();
-           WritablePacket *p2 = packet->uniqueify();
-           WritablePacket *p3 = packet->uniqueify();
+          WritablePacket *p1 = Packet::make(0,0,packet->length(),0);
+          memcpy(p1->data(), packet->data(),packet->length());
+
+          WritablePacket *p2 = Packet::make(0,0,packet->length(),0);
+          memcpy(p2->data(), packet->data(),packet->length());
+
+          WritablePacket *p3 = Packet::make(0,0,packet->length(),0);
+          memcpy(p3->data(), packet->data(),packet->length());
+
            struct DataPacket *dataPacket1 = (struct DataPacket*) p1->data();
            struct DataPacket *dataPacket2 = (struct DataPacket*) p2->data();
            struct DataPacket *dataPacket3 = (struct DataPacket*) p3->data();
@@ -193,9 +207,15 @@ DataModule::push(int port, Packet *packet) {
             bitmapS = bitmapS >> 1;
             sharedPort++;
           }
-           WritablePacket *p1 = packet->uniqueify();
-           WritablePacket *p2 = packet->uniqueify();
-           WritablePacket *p3 = packet->uniqueify();
+          WritablePacket *p1 = Packet::make(0,0,packet->length(),0);
+          memcpy(p1->data(), packet->data(),packet->length());
+
+          WritablePacket *p2 = Packet::make(0,0,packet->length(),0);
+          memcpy(p2->data(), packet->data(),packet->length());
+
+          WritablePacket *p3 = Packet::make(0,0,packet->length(),0);
+          memcpy(p3->data(), packet->data(),packet->length());
+
            struct DataPacket *dataPacket1 = (struct DataPacket*) p1->data();
            struct DataPacket *dataPacket2 = (struct DataPacket*) p2->data();
            struct DataPacket *dataPacket3 = (struct DataPacket*) p3->data();
@@ -218,9 +238,14 @@ DataModule::push(int port, Packet *packet) {
             bitmapS = bitmapS >> 1;
             sharedPort++;
           }
-           WritablePacket *p1 = packet->uniqueify();
-           WritablePacket *p2 = packet->uniqueify();
-           WritablePacket *p3 = packet->uniqueify();
+          WritablePacket *p1 = Packet::make(0,0,packet->length(),0);
+          memcpy(p1->data(), packet->data(),packet->length());
+
+          WritablePacket *p2 = Packet::make(0,0,packet->length(),0);
+          memcpy(p2->data(), packet->data(),packet->length());
+
+          WritablePacket *p3 = Packet::make(0,0,packet->length(),0);
+          memcpy(p3->data(), packet->data(),packet->length());
            struct DataPacket *dataPacket1 = (struct DataPacket*) p1->data();
            struct DataPacket *dataPacket2 = (struct DataPacket*) p2->data();
            struct DataPacket *dataPacket3 = (struct DataPacket*) p3->data();
@@ -233,7 +258,7 @@ DataModule::push(int port, Packet *packet) {
            output(sharedPort).push(p2);
            output(sharedPort).push(p3);
       }
-
+      packet->kill();
   }
 
 

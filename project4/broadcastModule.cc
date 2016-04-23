@@ -25,45 +25,42 @@ BroadcastModule::initialize(){
 void 
 BroadcastModule::push(int port, Packet *packet) {
 
-	 /*
+	 
 	 Packet *p0 = packet->clone();
  	 Packet *p1 = packet->clone();
 	 Packet *p2 = packet->clone();
 	 Packet *p3 = packet->clone();
 	 Packet *p4 = packet->clone();
+	
+	 
+	 /*
+     WritablePacket *p0 = Packet::make(0,0,packet->length(),0);
+     memcpy(p0->data(), packet->data(),packet->length());
+
+     
+     WritablePacket *p1 = Packet::make(0,0,packet->length(),0);
+     memcpy(p1->data(), packet->data(), packet->length());
+
+     WritablePacket *p2 = Packet::make(0,0,packet->length(),0);
+     memcpy(p2->data(), packet->data(),packet->length());
+
+     WritablePacket *p3 = Packet::make(0,0,packet->length(),0);
+     memcpy(p3->data(), packet->data(),packet->length());
+
+     WritablePacket *p4 = Packet::make(0,0,packet->length(),0);
+     memcpy(p4->data(), packet->data(),packet->length());
 	*/
-
-
-     WritablePacket *p01 = packet->uniqueify();
-          output(0).push(p01);
-
-     WritablePacket *p11 = p01->uniqueify();
-     	 output(1).push(p11);
-
-     WritablePacket *p21 = p11->uniqueify();
-     	 output(2).push(p21);
-
-     WritablePacket *p31 = p21->uniqueify();
-     	 output(3).push(p31);
-
-     WritablePacket *p41 = p31->uniqueify();
-	 	 output(4).push(p41);
-
-     /*
+     
+     
 	 output(0).push(p0);
-	 output(1).push(p11);
+	 output(1).push(p1);
 	 output(2).push(p2);
 	 output(3).push(p3);
 	 output(4).push(p4);
-	 */
+	 
 
-//	 packet->kill();
+	 packet->kill();
 
-//	 p0->kill();
-//	 p1->kill();
-//	 p2->kill();
-//	 p3->kill();
-//	 p4->kill();
 
 }
 

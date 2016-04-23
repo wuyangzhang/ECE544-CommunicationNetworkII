@@ -17,6 +17,7 @@ define($dev12 veth12, $addrDev12 7a:12:68:c0:38:45)
 rp0::RouterPort(DEV $dev12, IN_MAC $addrDev12, OUT_MAC $addrDev11)
 
 client::ClientModule(MY_ADDRESS 103, K 2, OTHER_ADDR1 101, OTHER_ADDR2 102, DELAY 20, PERIOD 5, TIME_OUT 2)
+//client::ClientModule(MY_ADDRESS 103,  K 3, OTHER_ADDR1 101, OTHER_ADDR2 102, OTHER_ADDR3 103, DELAY 20, PERIOD 5, TIME_OUT 2)
 
 rp0->client->rp0
 
