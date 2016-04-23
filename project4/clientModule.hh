@@ -33,6 +33,7 @@ class ClientModule : public Element {
     void sendAck(uint16_t destionAddr, uint8_t sequence);
   private:
     uint16_t _myAddr;
+    uint8_t k_value;
     uint16_t _otherAddr1;
     uint16_t _otherAddr2;
     uint16_t _otherAddr3;
@@ -41,7 +42,8 @@ class ClientModule : public Element {
     uint32_t _timeout;
     uint8_t dataSequence;
     uint8_t helloSequence;
-    Timer _timerClient;
+    Timer _timerHello;
+    Timer _timerData;
     HashTable<uint8_t,bool> ackTable;
 
 

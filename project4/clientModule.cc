@@ -13,14 +13,15 @@
 
 CLICK_DECLS 
 
-ClientModule::ClientModule() : _timerClient(this) {	
+ClientModule::ClientModule() : _timerHello(this), _timerData(this) {	
   this->helloSequence = 0;
   this->dataSequence = 10;
   this->_myAddr = 0;
+  this->k_value = 0;
   this->_otherAddr1 = 0;
   this->_otherAddr2 = 0;
   this->_otherAddr3 = 0;
-  this->_delay = 0;
+  this->_delay = 20;
   this->_period = 5;
   this->_timeout = 1;
 }
@@ -30,13 +31,14 @@ ClientModule::~ClientModule(){}
 
 int 
 ClientModule::initialize(ErrorHandler* errh){
-	this->_timerClient.initialize(this);
+	this->_timerHello.initialize(this);
+	this->_timerData.initialize(this);
 
  	if(this->_delay > 0 ){
-    	_timerClient.schedule_after_sec(this->_delay);
+    	_timerData.schedule_after_sec(this->_delay);
   	}
 
-  	_timerClient.schedule_after_sec(this->_period);
+  	_timerHello.schedule_after_sec(this->_period);
 
     return 0;
 }
@@ -44,11 +46,15 @@ ClientModule::initialize(ErrorHandler* errh){
 
 void
 ClientModule::run_timer(Timer* timer){
-  if(timer == &_timerClient){
-    this->sendData();
+  if(timer == &_timerHello){
     this->sendHello();
+    _timerHello.reschedule_after_sec(this->_period);	
+  } else if( timer == &_timerData){
+  	 this->sendData();
+    _timerData.reschedule_after_sec(this->_period);	
+  }else{
+  	assert(false);
   }
-  _timerClient.reschedule_after_sec(this->_period);
 }
 
 
@@ -56,9 +62,10 @@ int
 ClientModule::configure(Vector<String>&conf, ErrorHandler* errh){
  if (cp_va_kparse(conf, this, errh,
               "MY_ADDRESS", cpkP+cpkM, cpUnsigned, &_myAddr,
-              "OHTER_ADDR1", cpkP, cpUnsigned, &_otherAddr1,
-              "OHTER_ADDR2", cpkP, cpUnsigned, &_otherAddr2,
-              "OHTER_ADDR3", cpkP, cpUnsigned, &_otherAddr3,
+              "K", cpkP+cpkM, cpUnsigned, &k_value,
+              "OTHER_ADDR1", cpkP, cpUnsigned, &_otherAddr1,
+              "OTHER_ADDR2", cpkP, cpUnsigned, &_otherAddr2,
+              "OTHER_ADDR3", cpkP, cpUnsigned, &_otherAddr3,
               "DELAY", cpkP, cpUnsigned, &_delay,              
               "PERIOD", cpkP, cpUnsigned, &_period,
               "TIME_OUT", cpkP, cpUnsigned, &_timeout,
@@ -71,10 +78,16 @@ ClientModule::configure(Vector<String>&conf, ErrorHandler* errh){
 void 
 ClientModule::push(int port, Packet *packet) {
 	struct DataPacket *format = (struct DataPacket*) packet->data();
+
 	if(format->type == DATA){
-		click_chatter("[ClientModule] Receiving packet from source %d", format->sourceAddr);
+		click_chatter("[ClientModule] Receiving data packet from source %d with sequence %d", format->sourceAddr, format->sequenceNumber);
 		this->sendAck(format->sourceAddr, format->sequenceNumber);
 	}
+
+	if(format->type == ACK){
+		ackTable.set(this->dataSequence, true);
+	}
+
 	packet->kill();
 }
 
@@ -100,7 +113,7 @@ ClientModule::sendData(){
 	 struct DataPacket *format = (struct DataPacket*) dataPacket->data();
 	 format->type = DATA;
 	 format->sourceAddr = this->_myAddr;
-	 format->k_value = 1;
+	 format->k_value = this->k_value;
 	 format->destinationAddr1 = this->_otherAddr1;
 	 format->destinationAddr2 = this->_otherAddr2;
 	 format->destinationAddr3 = this->_otherAddr3;

@@ -75,7 +75,11 @@ HelloModule::push(int port, Packet *packet) {
   	assert(packet);
   	/* it is a hello packet with additional input port info*/
   	uint8_t* portNum = (uint8_t*)packet->data();
+
+
   	struct HelloPacket* helloPacket = (struct HelloPacket*)(portNum+1);
+
+    //click_chatter("[HelloModule] Receiving Hello Packet from Source %d with sequence %d from port %d", helloPacket->sourceAddr, helloPacket->sequenceNumber, *portNum);
 
     /* update routing table */
     //click_chatter("[HelloModule] call computeRoutingTable!");

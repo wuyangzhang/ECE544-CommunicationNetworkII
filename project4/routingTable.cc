@@ -60,7 +60,7 @@ RoutingTable::configure(Vector<String>& conf, ErrorHandler* errh){
     ftp->portCount = 1;
     ftp->cost = 0;
     this->forwardingTable.set(_myAddr, ftp);
-    
+
      return 0;
 }
 
@@ -180,40 +180,56 @@ RoutingTable::computeRoutingTable(const uint16_t sourceAddr, const uint32_t cost
 
 
 
-int 
+Vector<uint8_t>
 RoutingTable::lookUpForwardingTable(uint16_t destAddr){
 
     /* check forwarding table */
     /* Unicast Model! */
+    /*
     for(HashTable<uint16_t,struct RoutingTable::forwardingTableParam*>::iterator it = this->forwardingTable.begin(); it != this->forwardingTable.end(); ++it){
         if(it.key() == destAddr){
             return it.value()->port.front();
         }
     }
+    */
+    Vector <uint8_t> portSet;
+    for(HashTable<uint16_t,struct RoutingTable::forwardingTableParam*>::iterator it = this->forwardingTable.begin(); it != this->forwardingTable.end(); ++it){
+        if(it.key() == destAddr){
+            for(Vector<uint8_t>::iterator list = it.value()->port.begin(); list != it.value()->port.end(); ++list){
+                portSet.push_back(*list);
+            }
+        }
+    }
 
-    return -1;
+    return portSet;
 }
 
 
 
 void 
 RoutingTable::printRoutingTable(){
-
+    click_chatter("-------------------------------------------------\n \t\t[RoutingTable]");
     for(HashTable<uint16_t,struct RoutingTable::routingTableParam*>::iterator it = this->routingTable.begin(); it != this->routingTable.end(); ++it){
         for(Vector<uint16_t>::iterator list = it.value()->nextHop.begin(); list != it.value()->nextHop.end(); ++list){
             click_chatter("[destinaion] %d | [cost] %d | [next hop] %d \n", it.key(), it.value()->cost, *list);
         }
    }
+    click_chatter("-------------------------------------------------");
+
 }
 
 
 void
 RoutingTable::printForwardingTable(){
+    click_chatter("-------------------------------------------------\n \t\t[ForwardingTable]");
+
     for(HashTable<uint16_t,struct RoutingTable::forwardingTableParam*>::iterator it = this->forwardingTable.begin(); it != this->forwardingTable.end(); ++it){
             for(Vector<uint8_t>::iterator list = it.value()->port.begin(); list != it.value()->port.end(); ++list){
                 click_chatter("[destinaion] %d | [cost] %d | [port] %d \n", it.key(), it.value()->cost, *list);
             }
-       }
+    }
+   click_chatter("-------------------------------------------------");
+
 }
 
 CLICK_ENDDECLS 

@@ -49,6 +49,8 @@ PacketClassifier::push(int port, Packet *p) {
 		output(2).push(p);
 
 	} else if(header->type == DATA){
+		struct DataPacket *format = (struct DataPacket*) p->data();
+		click_chatter("[PacketClassifier] Receive data packet from source %d to %d , %d", format->sourceAddr, format->destinationAddr1, format->destinationAddr2);
 		output(3).push(p);
 
 	}else{

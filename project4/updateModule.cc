@@ -43,6 +43,8 @@ void
 UpdateModule::run_timer(Timer* timer){
   if(timer == &_timerUpdate){
     this->sendUpdate();
+    this->routingTable->printRoutingTable();
+    this->routingTable->printForwardingTable();
   }
   _timerUpdate.reschedule_after_sec(this->_period);
 }
@@ -78,7 +80,7 @@ UpdateModule::push(int port, Packet *packet) {
 	uint8_t* portNum = (uint8_t*)packet->data();
 	struct UpdatePacket* updatePacket = (struct UpdatePacket*)(portNum+1);
 
- 	click_chatter("[UpdateModule] Receiving Update Packet from Source %d with sequence %d from port %d", updatePacket->sourceAddr, updatePacket->sequenceNumber, *portNum);
+ 	//click_chatter("[UpdateModule] Receiving Update Packet from Source %d with sequence %d from port %d", updatePacket->sourceAddr, updatePacket->sequenceNumber, *portNum);
 
   /* update routing table && forwarding table */
   uint16_t routingTableRowCount = updatePacket->length;
@@ -95,8 +97,6 @@ UpdateModule::push(int port, Packet *packet) {
     castNextHop = (uint16_t*)(castHopCount+1);
     
     for(uint16_t i = 0; i< *castHopCount; i++){
-        click_chatter("[UpdateModule] call computeRoutingTable!");
-
         this->routingTable->computeRoutingTable( *castSrcAddr, (*castCost) + 1, updatePacket->sourceAddr); /* castCost + 1 -> 1 hop to its neighbor */
         this->routingTable->computeForwardingTable( *castSrcAddr, (*castCost) + 1, *portNum);
         castNextHop++;
@@ -109,7 +109,7 @@ UpdateModule::push(int port, Packet *packet) {
 
   /* send back ack */
   this->sendAck(*portNum, updatePacket->sequenceNumber, updatePacket->sourceAddr);
-  this->routingTable->printRoutingTable();
+  //this->routingTable->printRoutingTable();
 
   packet->kill();
 }
@@ -145,7 +145,9 @@ UpdateModule::sendUpdate(){
   }
   
 
-  this->routingTable->printRoutingTable();
+  //
+
+  //this->routingTable->printRoutingTable();
 
   WritablePacket *updatePacket = Packet::make(0,0, sizeof(struct UpdatePacket)+ routingTableSize, 0);
   memset(updatePacket->data(), 0, updatePacket->length());
