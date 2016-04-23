@@ -119,8 +119,8 @@ DataModule::push(int port, Packet *packet) {
 
   if(dataPacket->k_value == 3){
       forwardingPortSet1 = this->routingTable->lookUpForwardingTable(dataPacket->destinationAddr1);
-      forwardingPortSet2 = this->routingTable->lookUpForwardingTable(dataPacket->destinationAddr1);
-      forwardingPortSet3 = this->routingTable->lookUpForwardingTable(dataPacket->destinationAddr1);
+      forwardingPortSet2 = this->routingTable->lookUpForwardingTable(dataPacket->destinationAddr2);
+      forwardingPortSet3 = this->routingTable->lookUpForwardingTable(dataPacket->destinationAddr3);
 
       for(Vector<uint8_t>::iterator it = forwardingPortSet1.begin(); it != forwardingPortSet1.end(); ++it){
          bitmap1 = bitmap1 | (1<<*it);
@@ -133,15 +133,7 @@ DataModule::push(int port, Packet *packet) {
       }
       uint8_t bitmapS = bitmap1 & bitmap2 & bitmap3;
 
-      if(bitmapS ==1){
-          int sharedPort = 0;
-          while( (bitmapS & 1) == 0){
-            bitmapS = bitmapS >> 1;
-            sharedPort++;
-          }
-           output(sharedPort).push(packet);
-          
-      }
+      
       /* no shared path */
       if(bitmapS == 0){
           WritablePacket *p1 = Packet::make(0,0,packet->length(),0);
@@ -159,13 +151,27 @@ DataModule::push(int port, Packet *packet) {
          dataPacket1->k_value = 1;
          dataPacket2->k_value = 1;
          dataPacket3->k_value = 1;
-         dataPacket1->destinationAddr1 = dataPacket->destinationAddr1;
-         dataPacket2->destinationAddr1 = dataPacket->destinationAddr2;
-         dataPacket3->destinationAddr1 = dataPacket->destinationAddr3;
+         dataPacket1->destinationAddr1 = destinationAddr1;
+         dataPacket2->destinationAddr1 = destinationAddr2;
+         dataPacket3->destinationAddr1 = destinationAddr3;
+
          output(forwardingPortSet1.front()).push(p1);
          output(forwardingPortSet2.front()).push(p2);
          output(forwardingPortSet3.front()).push(p3);
 
+      }
+
+      /* three destinations share path */
+      bitmapS = 0;
+      bitmapS = bitmap1 | bitmap2 | bitmap3 ;
+      if(bitmapS == 1){
+          int sharedPort = 0;
+          while( (bitmapS & 1) == 0){
+            bitmapS = bitmapS >> 1;
+            sharedPort++;
+          }
+           output(sharedPort).push(packet);
+          
       }
 
       /* two destinations share path */

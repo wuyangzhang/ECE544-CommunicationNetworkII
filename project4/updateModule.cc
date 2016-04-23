@@ -137,7 +137,7 @@ UpdateModule::sendUpdate(){
   }
   
   int routingTableSize = 0;
-  int routingTableRowCount = 0;
+  uint16_t routingTableRowCount = 0;
   for(HashTable<uint16_t,struct RoutingTable::routingTableParam*>::iterator it = this->routingTable->routingTable.begin(); it; ++it){
       routingTableSize += ( sizeof(uint16_t) + sizeof(uint32_t) + sizeof(uint16_t) + sizeof(uint16_t) * it.value()->hopCount );
        /* src uint16_t + cost uint32_t + hopCount uint16_t + nextHop uint16_t*hopCount */
@@ -155,7 +155,7 @@ UpdateModule::sendUpdate(){
   format->type = UPDATE;
   format->sourceAddr = this->_myAddr;
   format->sequenceNumber = this->updateSequence;
-  format->length = *((uint16_t*)(&routingTableRowCount)); /* length of payload */
+  format->length = routingTableRowCount; /* length of payload */
 
 
   /* write payload as routing table info, with looping struct pointer to write payload*/
