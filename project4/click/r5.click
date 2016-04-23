@@ -1,15 +1,17 @@
 require(library /home/comnetsii/elements/routerport.click);
 
-define($dev1 veth1, $addrDev1 92:1b:0a:62:29:68)
-define($dev2 veth2, $addrDev2 02:f8:d4:fb:fa:33)
-define($dev3 veth3, $addrDev3 96:af:22:67:eb:29)
-define($dev4 veth4, $addrDev4 fe:6b:59:31:53:c2)
-define($dev5 veth5, $addrDev5 0e:59:ea:1f:38:2a)
-define($dev6 veth6, $addrDev6 92:ca:27:70:9c:16)
-define($dev7 veth7, $addrDev7 ce:b6:17:8c:98:71)
-define($dev8 veth8, $addrDev8 a2:ce:56:e0:57:2c)
-define($dev9 veth9, $addrDev9 d6:19:11:2e:1b:8d)
-define($dev10 veth10, $addrDev10 0a:37:4c:6b:45:66)
+define($dev1 veth1, $addrDev1 e6:12:0b:b5:38:c5)
+define($dev2 veth2, $addrDev2 26:16:54:22:10:87)
+define($dev3 veth3, $addrDev3 02:ae:8b:cb:19:54)
+define($dev4 veth4, $addrDev4 46:0a:ad:c9:68:c0)
+define($dev5 veth5, $addrDev5 5e:fa:80:6a:31:c5)
+define($dev6 veth6, $addrDev6 fa:12:a8:22:12:93)
+define($dev7 veth7, $addrDev7 aa:15:1c:4e:64:44)
+define($dev8 veth8, $addrDev8 de:69:81:38:c0:6e)
+define($dev9 veth9, $addrDev9 9a:51:04:43:dd:81)
+define($dev10 veth10, $addrDev10 12:05:2a:19:1e:6b)
+define($dev11 veth11, $addrDev11 9e:b2:17:c6:7f:7b)
+define($dev12 veth12, $addrDev12 4e:c0:fe:06:76:f5)
 
 
 // ************************* define router output link ! **********************************************************************
