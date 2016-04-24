@@ -53,16 +53,28 @@ void
 DataModule::push(int port, Packet *packet) {
 
 	struct DataPacket *dataPacket = (struct DataPacket *) packet->data();
-  Vector<uint8_t>forwardingPortSet1;
-  Vector<uint8_t>forwardingPortSet2;
-  Vector<uint8_t>forwardingPortSet3;
+  Vector<uint8_t> forwardingPortSet1;
+  Vector<uint8_t> forwardingPortSet2;
+  Vector<uint8_t> forwardingPortSet3;
 
   uint8_t destinationAddr1 = dataPacket->destinationAddr1;
   uint8_t destinationAddr2 = dataPacket->destinationAddr2;
   uint8_t destinationAddr3 = dataPacket->destinationAddr3;
 
   if(dataPacket->k_value == 1){
+
+      /* UNICAST: find the minmimum cost */
       forwardingPortSet1 = this->routingTable->lookUpForwardingTable(dataPacket->destinationAddr1);
+      forwardingPortSet2 = this->routingTable->lookUpForwardingTable(dataPacket->destinationAddr2);
+      forwardingPortSet3 = this->routingTable->lookUpForwardingTable(dataPacket->destinationAddr3);
+      if(forwardingPortSet1.size() > forwardingPortSet2.size()) {
+        forwardingPortSet1 = forwardingPortSet2;
+      }
+      if(forwardingPortSet1 > forwardingPortSet3.size()) {
+        forwardingPortSet1 = forwardingPortSet3;
+      }
+      
+      click_chatter("[dataModule]The value of K is 1 and lookUpForwardingTable");
       if(!forwardingPortSet1.empty()){
           output(forwardingPortSet1.front()).push(packet);
       }else{
@@ -234,11 +246,11 @@ DataModule::push(int port, Packet *packet) {
            output(sharedPort).push(p1);
            output(forwardingPortSet2.front()).push(p2);
            output(sharedPort).push(p3);
-      }
+        }
 
       bitmapS = 0;
       bitmap3 = bitmap2 & bitmap3;
-       if(bitmapS == 1){
+        if(bitmapS == 1){
           int sharedPort = 0;
           while( (bitmapS & 1) == 0){
             bitmapS = bitmapS >> 1;
@@ -263,9 +275,11 @@ DataModule::push(int port, Packet *packet) {
            output(forwardingPortSet3.front()).push(p1);
            output(sharedPort).push(p2);
            output(sharedPort).push(p3);
-      }
+        }
+
       packet->kill();
   }
+
 
 
 }
