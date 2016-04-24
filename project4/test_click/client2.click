@@ -13,26 +13,28 @@ define($dev10 veth10, $addrDev10 12:05:2a:19:1e:6b)
 define($dev11 veth11, $addrDev11 9e:b2:17:c6:7f:7b)
 define($dev12 veth12, $addrDev12 4e:c0:fe:06:76:f5)
 
-********************** Test Topology ***********************************
+//********************** Test Topology ***********************************
 //
 //
 //                                                  --- [veth4] Router2 [veth5] ----- [veth6] Client1
-                                                   /
-                                                  /
-                                           [veth3]
-       Client0 [veth1] ----- [veth2] Router1
-                                           [veth7]
-                                                  \
-                                                    \
-                                                     --- [veth8] Router3 [veth9] ----- [veth10] Client2
-                                                     					 [veth11]-----[veth12] Client3
+//                                                   /
+//                                                  /
+//                                          [veth3]
+//       Client0 [veth1] ----- [veth2] Router1
+//                                           [veth7]
+//                                                  \
+//                                                    \
+//                                                     --- [veth8] Router3 [veth9] ----- [veth10] Client2
+//                                                     					 [veth11]-----[veth12] Client3
+//
 
 
-// ************************* define access router output link ! **********************************************************************
+// ************************* define access router output link ! //**********************************************************************
 rp2::RouterPort(DEV $dev10, IN_MAC $addrDev10, OUT_MAC $addrDev9)
 
-client2::ClientModule(MY_ADDRESS 102, K 2, OTHER_ADDR1 101, OTHER_ADDR2 100, OTHER_ADDR3 103, DELAY 20, PERIOD 5, TIME_OUT 2)
-//client::ClientModule(MY_ADDRESS 102,  K 3, OTHER_ADDR1 101, OTHER_ADDR2 102, OTHER_ADDR3 103, DELAY 20, PERIOD 5, TIME_OUT 2)
+client2::ClientModule(MY_ADDRESS 102, K 1, OTHER_ADDR1 101, OTHER_ADDR2 100, OTHER_ADDR3 103, DELAY 20, PERIOD 5, TIME_OUT 2)
+//client2::ClientModule(MY_ADDRESS 102, K 2, OTHER_ADDR1 101, OTHER_ADDR2 100, OTHER_ADDR3 103, DELAY 20, PERIOD 5, TIME_OUT 2)
+//client2::ClientModule(MY_ADDRESS 102, K 3, OTHER_ADDR1 101, OTHER_ADDR2 100, OTHER_ADDR3 103, DELAY 20, PERIOD 5, TIME_OUT 2)
 
 rp2->client2->rp2
 

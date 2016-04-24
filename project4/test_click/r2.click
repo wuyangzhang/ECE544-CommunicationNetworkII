@@ -14,20 +14,20 @@ define($dev11 veth11, $addrDev11 9e:b2:17:c6:7f:7b)
 define($dev12 veth12, $addrDev12 4e:c0:fe:06:76:f5)
 
 
-********************** Test Topology ***********************************
+//********************** Test Topology ***********************************
 //
 //
 //                                                  --- [veth4] Router2 [veth5] ----- [veth6] Client1
-                                                   /
-                                                  /
-                                           [veth3]
-       Client0 [veth1] ----- [veth2] Router1
-                                           [veth7]
-                                                  \
-                                                    \
-                                                     --- [veth8] Router3 [veth9] ----- [veth10] Client2
-                                                     					 [veth11]-----[veth12] Client3
-
+//                                                   /
+//                                                  /
+//                                          [veth3]
+//       Client0 [veth1] ----- [veth2] Router1
+//                                           [veth7]
+//                                                  \
+//                                                    \
+//                                                     --- [veth8] Router3 [veth9] ----- [veth10] Client2
+//                                                     					 [veth11]-----[veth12] Client3
+//
 
 // ************************* define router output link ! **********************************************************************
 rp0::RouterPort(DEV $dev4, IN_MAC $addrDev4, OUT_MAC $addrDev3)
@@ -42,7 +42,7 @@ ack::AckModule()
 rt::RoutingTable(MY_ADDRESS 2)
 hello::HelloModule(MY_ADDRESS 2, DELAY 1, PERIOD 5, TIME_OUT 2, ACK_TABLE ack, ROUTING_TABLE rt)
 update::UpdateModule(MY_ADDRESS 2,DELAY 5, PERIOD 5, TIME_OUT 2,  ACK_TABLE ack, ROUTING_TABLE rt)
-*************************************************************************************************************
+//*************************************************************************************************************
 
 
 data::DataModule(ROUTING_TABLE rt)
@@ -52,7 +52,7 @@ bd::BroadcastModule()
 // ************************* @all input ports forward packets to Packet Classifier !*************************
 rp0->[0]cl
 rp1->[1]cl
-*************************************************************************************************************
+//*************************************************************************************************************
 
 
 // packet classifier outport 0: hello, outport1: update, outport2: ack, output3: data

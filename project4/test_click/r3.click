@@ -14,21 +14,20 @@ define($dev11 veth11, $addrDev11 9e:b2:17:c6:7f:7b)
 define($dev12 veth12, $addrDev12 4e:c0:fe:06:76:f5)
 
 
-********************** Test Topology ***********************************
+//********************** Test Topology ***********************************
 //
 //
 //                                                  --- [veth4] Router2 [veth5] ----- [veth6] Client1
-                                                   /
-                                                  /
-                                           [veth3]
-       Client0 [veth1] ----- [veth2] Router1
-                                           [veth7]
-                                                  \
-                                                    \
-                                                     --- [veth8] Router3 [veth9] ----- [veth10] Client2
-                                                     					 [veth11]-----[veth12] Client3
-
-
+//                                                   /
+//                                                  /
+//                                          [veth3]
+//       Client0 [veth1] ----- [veth2] Router1
+//                                           [veth7]
+//                                                  \
+//                                                    \
+//                                                     --- [veth8] Router3 [veth9] ----- [veth10] Client2
+//                                                     					 [veth11]-----[veth12] Client3
+//
 // ************************* define router output link ! **********************************************************************
 rp0::RouterPort(DEV $dev8, IN_MAC $addrDev8, OUT_MAC $addrDev7)
 rp1::RouterPort(DEV $dev9, IN_MAC $addrDev9, OUT_MAC $addrDev10)
