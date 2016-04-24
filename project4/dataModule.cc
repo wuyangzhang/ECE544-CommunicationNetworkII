@@ -73,7 +73,8 @@ DataModule::push(int port, Packet *packet) {
       if(forwardingPortSet1 > forwardingPortSet3.size()) {
         forwardingPortSet1 = forwardingPortSet3;
       }
-      
+
+      //why there is no print for this line?
       click_chatter("[dataModule]The value of K is 1 and lookUpForwardingTable");
       if(!forwardingPortSet1.empty()){
           output(forwardingPortSet1.front()).push(packet);
