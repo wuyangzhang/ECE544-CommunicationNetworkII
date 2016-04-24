@@ -120,9 +120,7 @@ RoutingTable::computeForwardingTable(const uint16_t sourceAddr, const uint32_t c
             ftp->portCount = 1;
             ftp->cost = cost;
             this->forwardingTable.set(sourceAddr, ftp);
-        }
-
-        if(cost == this->forwardingTable.get(sourceAddr)->cost){
+        }else if(cost == this->forwardingTable.get(sourceAddr)->cost){
             if(port != this->forwardingTable.get(sourceAddr)->port.front()){
                 /* fetch all current next hop followed by a new next hop, build a new next hop structure */
                 ftp->port = this->forwardingTable.get(sourceAddr)->port;
@@ -160,9 +158,7 @@ RoutingTable::computeRoutingTable(const uint16_t sourceAddr, const uint32_t cost
             rtp->nextHop.push_back(nextHop);
             this->routingTable.set(sourceAddr, rtp); /* reset the cost & next hop for this destination */
 
-        }
-
-        if(cost == this->routingTable.get(sourceAddr)->cost){
+        }else if(cost == this->routingTable.get(sourceAddr)->cost){
             /* fetch all current next hop followed by a new next hop, build a new next hop structure */
             if(nextHop != this->routingTable.get(sourceAddr)->nextHop.front()){
                 rtp->nextHop = this->routingTable.get(sourceAddr)->nextHop;

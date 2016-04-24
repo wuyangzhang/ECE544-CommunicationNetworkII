@@ -82,9 +82,11 @@ ClientModule::push(int port, Packet *packet) {
 	if(format->type == DATA){
 		click_chatter("[ClientModule] Receiving data packet from source %d with sequence %d", format->sourceAddr, format->sequenceNumber);
 		this->sendAck(format->sourceAddr, format->sequenceNumber);
+    click_chatter("[ClientModule] Already sent an ack to source %d with sequence %d", format->sourceAddr, format->sequenceNumber);
 	}
 
 	if(format->type == ACK){
+    click_chatter("[ClientModule] Receiving an ack from sequence %d", this->dataSequence);
 		ackTable.set(this->dataSequence, true);
 	}
 
