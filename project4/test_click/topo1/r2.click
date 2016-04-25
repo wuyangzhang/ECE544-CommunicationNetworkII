@@ -41,7 +41,7 @@ ack::AckModule()
 // ************************* @initiate address ! **********************************************************************
 rt::RoutingTable(MY_ADDRESS 2)
 hello::HelloModule(MY_ADDRESS 2, DELAY 1, PERIOD 5, TIME_OUT 2, ACK_TABLE ack, ROUTING_TABLE rt)
-update::UpdateModule(MY_ADDRESS 2,DELAY 5, PERIOD 5, TIME_OUT 2,  ACK_TABLE ack, ROUTING_TABLE rt)
+update::UpdateModule(MY_ADDRESS 2, DELAY 5, PERIOD 5, TIME_OUT 2,  ACK_TABLE ack, ROUTING_TABLE rt)
 //*************************************************************************************************************
 
 

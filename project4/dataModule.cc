@@ -235,13 +235,24 @@ DataModule::push(int port, Packet *packet) {
       if(bitmapS != 0){
           int sharedPort = 0;
           while(bitmapS != 0){
-            if(bitmapS & 1 == 0) {
-              //sharedPort is shared
-              //calculate the total cost
-              uint32_t total_cost = this->routingTable->routingTable.get(dataPacket->destinationAddr1)->cost;
-            }
+            //if(bitmapS & 1 != 0) {
+              /*
+              multiple ports may be shared by all 3 detinations
+
+              need to calculate the total cost, then choose the next port with minimum total cost
+
+              TO BE DONE  
+              
+              because using this->routingTable->routingTable.get(dataPacket->destinationAddr1) can only return the first entry
+              even if there multiple entry for destinationAddr1
+              */
+
+              /*now assume just share one port*/
+        
+            //}
             bitmapS = bitmapS >> 1;
-            sharedPort++;
+              sharedPort++;
+            
           }
            output(sharedPort).push(packet);
           
@@ -250,9 +261,9 @@ DataModule::push(int port, Packet *packet) {
       /* two destinations share path */
       bitmapS = 0;
       bitmapS = bitmap1 & bitmap2;
-      if(bitmapS == 1){
+      if(bitmapS != 0){
           int sharedPort = 0;
-          while( (bitmapS & 1) == 0){
+          while( bitmapS != 0){
             bitmapS = bitmapS >> 1;
             sharedPort++;
           }
@@ -262,27 +273,29 @@ DataModule::push(int port, Packet *packet) {
           WritablePacket *p2 = Packet::make(0,0,packet->length(),0);
           memcpy(p2->data(), packet->data(),packet->length());
 
-          WritablePacket *p3 = Packet::make(0,0,packet->length(),0);
-          memcpy(p3->data(), packet->data(),packet->length());
+          //WritablePacket *p3 = Packet::make(0,0,packet->length(),0);
+          //memcpy(p3->data(), packet->data(),packet->length());
 
            struct DataPacket *dataPacket1 = (struct DataPacket*) p1->data();
            struct DataPacket *dataPacket2 = (struct DataPacket*) p2->data();
-           struct DataPacket *dataPacket3 = (struct DataPacket*) p3->data();
+           //struct DataPacket *dataPacket3 = (struct DataPacket*) p3->data();
            dataPacket1->k_value = 2;
-           dataPacket2->k_value = 2;
-           dataPacket3->k_value = 1;
+           dataPacket2->k_value = 1;
+           //dataPacket3->k_value = 2;
   
-           dataPacket3->destinationAddr1 = dataPacket->destinationAddr3;
+           dataPacket1->destinationAddr1 = dataPacket->destinationAddr1;
+           dataPacket1->destinationAddr2 = dataPacket->destinationAddr2;
+           dataPacket2->destinationAddr1 = dataPacket->destinationAddr3;
            output(sharedPort).push(p1);
-           output(sharedPort).push(p2);
-           output(forwardingPortSet3.front()).push(p3);
+           //output(sharedPort).push(p2);
+           output(forwardingPortSet3.front()).push(p2);
       }
 
       bitmapS = 0;
       bitmapS = bitmap1 & bitmap3;
-       if(bitmapS == 1){
+      if(bitmapS != 0){
           int sharedPort = 0;
-          while( (bitmapS & 1) == 0){
+          while( bitmapS != 0){
             bitmapS = bitmapS >> 1;
             sharedPort++;
           }
@@ -292,28 +305,28 @@ DataModule::push(int port, Packet *packet) {
           WritablePacket *p2 = Packet::make(0,0,packet->length(),0);
           memcpy(p2->data(), packet->data(),packet->length());
 
-          WritablePacket *p3 = Packet::make(0,0,packet->length(),0);
-          memcpy(p3->data(), packet->data(),packet->length());
+          //WritablePacket *p3 = Packet::make(0,0,packet->length(),0);
+          //memcpy(p3->data(), packet->data(),packet->length());
 
            struct DataPacket *dataPacket1 = (struct DataPacket*) p1->data();
            struct DataPacket *dataPacket2 = (struct DataPacket*) p2->data();
-           struct DataPacket *dataPacket3 = (struct DataPacket*) p3->data();
+           //struct DataPacket *dataPacket3 = (struct DataPacket*) p3->data();
            dataPacket1->k_value = 2;
            dataPacket2->k_value = 1;
-           dataPacket3->k_value = 2;
+           //dataPacket3->k_value = 2;
+           dataPacket1->destinationAddr1 = dataPacket->destinationAddr1;
            dataPacket1->destinationAddr2 = dataPacket->destinationAddr3;
-           dataPacket2->destinationAddr1 = dataPacket->destinationAddr3;
-           dataPacket3->destinationAddr2 = dataPacket->destinationAddr3;
+           dataPacket2->destinationAddr1 = dataPacket->destinationAddr2;
            output(sharedPort).push(p1);
            output(forwardingPortSet2.front()).push(p2);
-           output(sharedPort).push(p3);
-        }
+           //output(sharedPort).push(p3);
+      }
 
       bitmapS = 0;
       bitmap3 = bitmap2 & bitmap3;
-        if(bitmapS == 1){
+        if(bitmapS != 0){
           int sharedPort = 0;
-          while( (bitmapS & 1) == 0){
+          while( bitmapS != 0){
             bitmapS = bitmapS >> 1;
             sharedPort++;
           }
@@ -323,19 +336,20 @@ DataModule::push(int port, Packet *packet) {
           WritablePacket *p2 = Packet::make(0,0,packet->length(),0);
           memcpy(p2->data(), packet->data(),packet->length());
 
-          WritablePacket *p3 = Packet::make(0,0,packet->length(),0);
-          memcpy(p3->data(), packet->data(),packet->length());
+         // WritablePacket *p3 = Packet::make(0,0,packet->length(),0);
+         // memcpy(p3->data(), packet->data(),packet->length());
            struct DataPacket *dataPacket1 = (struct DataPacket*) p1->data();
            struct DataPacket *dataPacket2 = (struct DataPacket*) p2->data();
-           struct DataPacket *dataPacket3 = (struct DataPacket*) p3->data();
+          // struct DataPacket *dataPacket3 = (struct DataPacket*) p3->data();
            dataPacket1->k_value = 1;
            dataPacket2->k_value = 2;
-           dataPacket3->k_value = 2;
-           dataPacket2->destinationAddr1 = dataPacket->destinationAddr3;
-           dataPacket3->destinationAddr1 = dataPacket->destinationAddr3;
+           //dataPacket3->k_value = 2;
+           dataPacket1->destinationAddr1 = dataPacket->destinationAddr1;
+           dataPacket2->destinationAddr1 = dataPacket->destinationAddr2;
+           dataPacket2->destinationAddr2 = dataPacket->destinationAddr3;
            output(forwardingPortSet3.front()).push(p1);
            output(sharedPort).push(p2);
-           output(sharedPort).push(p3);
+           //output(sharedPort).push(p3);
         }
 
       packet->kill();
