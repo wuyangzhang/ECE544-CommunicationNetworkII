@@ -75,7 +75,7 @@ ack[1]->rp1
 
 // *************************@broadcast packet to all valid out ports !*************************
 bd[0]->rp0
-bd[1]->Discard
+bd[1]->rp1
 bd[2]->Discard
 bd[3]->Discard
 bd[4]->Discard

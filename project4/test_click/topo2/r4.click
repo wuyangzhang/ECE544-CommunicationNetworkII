@@ -49,7 +49,7 @@ bd::BroadcastModule()
 // ************************* @all input ports forward packets to Packet Classifier !*************************
 rp0->[0]cl
 rp1->[1]cl
-//rp2->[2]cl
+
 
 // packet classifier outport 0: hello, outport1: update, outport2: ack, output3: data
 // ack inport 0: receive ack packet, update ack table, inport 1: send out ack
@@ -69,15 +69,14 @@ update[1]->[1]ack
 // *************************@ack connect to all valid out port !*************************
 ack[0]->rp0
 ack[1]->rp1
-//ack[2]->rp2
+
 
 // *************************@broadcast packet to all valid out ports !*************************
 bd[0]->rp0
-bd[1]->Discard
+bd[1]->rp1
 bd[2]->Discard
 bd[3]->Discard
 bd[4]->Discard
 // *************************@forward packet to all valid out ports !*************************
 data[0]->rp0
 data[1]->rp1
-//data[2]->rp2
