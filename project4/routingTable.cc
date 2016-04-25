@@ -188,7 +188,7 @@ RoutingTable::lookUpForwardingTable(uint16_t destAddr){
         }
     }
     */
-    Vector <uint8_t> portSet;
+    Vector <uint8_t> portSet;/*all of possible ports for destAddr*/
     for(HashTable<uint16_t,struct RoutingTable::forwardingTableParam*>::iterator it = this->forwardingTable.begin(); it != this->forwardingTable.end(); ++it){
         if(it.key() == destAddr){
             for(Vector<uint8_t>::iterator list = it.value()->port.begin(); list != it.value()->port.end(); ++list){

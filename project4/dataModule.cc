@@ -64,18 +64,60 @@ DataModule::push(int port, Packet *packet) {
   if(dataPacket->k_value == 1){
 
       /* UNICAST: find the minmimum cost */
-      forwardingPortSet1 = this->routingTable->lookUpForwardingTable(dataPacket->destinationAddr1);
-      forwardingPortSet2 = this->routingTable->lookUpForwardingTable(dataPacket->destinationAddr2);
-      forwardingPortSet3 = this->routingTable->lookUpForwardingTable(dataPacket->destinationAddr3);
-      if(forwardingPortSet1.size() > forwardingPortSet2.size()) {
-        forwardingPortSet1 = forwardingPortSet2;
-      }
-      if(forwardingPortSet1 > forwardingPortSet3.size()) {
-        forwardingPortSet1 = forwardingPortSet3;
+      //check and set valid address
+      if(dataPacket->destinationAddr2 == 0 && dataPacket->destinationAddr3 == 0) {
+        
+        /*only destinationAddr1 is valid, do nothing*/
+
+      } else if(dataPacket->destinationAddr2 == 0) {
+
+        //compare cost between destinationAddr1 and destinationAddr3 
+        uint32_t cost1 = this->routingTable.get(dataPacket->destinationAddr1)->cost;
+        uint32_t cost3 = this->routingTable.get(dataPacket->destinationAddr3)->cost;
+        if(cost1 > cost3) {
+          dataPacket->destinationAddr1 = dataPacket->destinationAddr3;
+          dataPacket->destinationAddr3 = 0;
+        } else {
+          dataPacket->destinationAddr3 = 0;
+        }
+
+      } else if (dataPacket->destinationAddr3 == 0) {
+
+        //compare cost between destinationAddr1 and destinationAddr2
+        uint32_t cost1 = this->routingTable.get(dataPacket->destinationAddr1)->cost;
+        uint32_t cost2 = this->routingTable.get(dataPacket->destinationAddr2)->cost;
+        if(cost1 > cost2) {
+          dataPacket->destinationAddr1 = dataPacket->destinationAddr2;
+          dataPacket->destinationAddr2 = 0;
+        } else {
+          dataPacket->destinationAddr2 = 0;
+        }
+
+      } else {
+
+        //compare cost between destinationAddr1, destinationAddr2 and destinationAddr3 
+        uint32_t cost1 = this->routingTable.get(dataPacket->destinationAddr1)->cost;
+        uint32_t cost2 = this->routingTable.get(dataPacket->destinationAddr2)->cost;
+        if(cost1 > cost2) {
+          dataPacket->destinationAddr1 = dataPacket->destinationAddr2;
+          dataPacket->destinationAddr2 = 0;
+        } else {
+          dataPacket->destinationAddr2 = 0;
+        }
+
+        cost1 = this->routingTable.get(dataPacket->destinationAddr1)->cost;
+        uint32_t cost3 = this->routingTable.get(dataPacket->destinationAddr3)->cost;
+        if(cost1 > cost3) {
+          dataPacket->destinationAddr1 = dataPacket->destinationAddr3;
+          dataPacket->destinationAddr3 = 0;
+        } else {
+          dataPacket->destinationAddr3 = 0;
+        }
+
       }
 
-      //why there is no print for this line?
-      click_chatter("[dataModule]The value of K is 1 and lookUpForwardingTable");
+      //now only destinationAddr1 is valid
+      forwardingPortSet1 = this->routingTable->lookUpForwardingTable(dataPacket->destinationAddr1);
       if(!forwardingPortSet1.empty()){
           output(forwardingPortSet1.front()).push(packet);
       }else{
