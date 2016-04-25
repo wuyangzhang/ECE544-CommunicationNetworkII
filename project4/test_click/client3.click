@@ -31,7 +31,7 @@ define($dev12 veth12, $addrDev12 4e:c0:fe:06:76:f5)
 // ************************* define access router output link ! //**********************************************************************
 rp3::RouterPort(DEV $dev12, IN_MAC $addrDev12, OUT_MAC $addrDev11)
 
-client3::ClientModule(MY_ADDRESS 103, K 1, OTHER_ADDR1 100, OTHER_ADDR2 102, OTHER_ADDR3 101, DELAY 20, PERIOD 5, TIME_OUT 2)
+client3::ClientModule(MY_ADDRESS 103, K 1, OTHER_ADDR1 101, OTHER_ADDR2 102, OTHER_ADDR3 100, DELAY 20, PERIOD 5, TIME_OUT 2)
 //client3::ClientModule(MY_ADDRESS 103, K 2, OTHER_ADDR1 101, OTHER_ADDR2 102, OTHER_ADDR3 100, DELAY 20, PERIOD 5, TIME_OUT 2)
 //client3::ClientModule(MY_ADDRESS 103, K 3, OTHER_ADDR1 101, OTHER_ADDR2 102, OTHER_ADDR3 100, DELAY 20, PERIOD 5, TIME_OUT 2)
 
