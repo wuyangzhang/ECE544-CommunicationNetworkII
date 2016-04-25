@@ -210,9 +210,17 @@ DataModule::push(int port, Packet *packet) {
          dataPacket1->k_value = 1;
          dataPacket2->k_value = 1;
          dataPacket3->k_value = 1;
+
+         /*set destinationAddr2 and destinationAddr3 to be 0*/
          dataPacket1->destinationAddr1 = destinationAddr1;
+         dataPacket1->destinationAddr2 = 0;
+         dataPacket1->destinationAddr3 = 0;
          dataPacket2->destinationAddr1 = destinationAddr2;
+         dataPacket2->destinationAddr2 = 0;
+         dataPacket2->destinationAddr3 = 0;
          dataPacket3->destinationAddr1 = destinationAddr3;
+         dataPacket3->destinationAddr2 = 0;
+         dataPacket3->destinationAddr3 = 0;
 
          output(forwardingPortSet1.front()).push(p1);
          output(forwardingPortSet2.front()).push(p2);
@@ -222,10 +230,16 @@ DataModule::push(int port, Packet *packet) {
 
       /* three destinations share path */
       bitmapS = 0;
-      bitmapS = bitmap1 | bitmap2 | bitmap3 ;
-      if(bitmapS == 1){
+      bitmapS = bitmap1 & bitmap2 & bitmap3 ;
+      //store all shared port and then calculate cost
+      if(bitmapS != 0){
           int sharedPort = 0;
-          while( (bitmapS & 1) == 0){
+          while(bitmapS != 0){
+            if(bitmapS & 1 == 0) {
+              //sharedPort is shared
+              //calculate the total cost
+              uint32_t total_cost = this->routingTable->routingTable.get(dataPacket->destinationAddr1)->cost;
+            }
             bitmapS = bitmapS >> 1;
             sharedPort++;
           }

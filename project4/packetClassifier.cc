@@ -49,6 +49,7 @@ PacketClassifier::push(int port, Packet *p) {
 
 	} else if(header->type == ACK) {
 		output(2).push(p);
+		click_chatter("[PacketClassifier] Receive ack packet from port %d", port);
 
 	} else if(header->type == DATA){
 		struct DataPacket *format = (struct DataPacket*) p->data();
