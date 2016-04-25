@@ -36,7 +36,6 @@ PacketClassifier::push(int port, Packet *p) {
 		WritablePacket *q = p->push(sizeof(uint8_t));
 		uint8_t *portNum = (uint8_t*) q->data();
 		*portNum = *((uint8_t*)(&port));
-		click_chatter("[PacketClassifier] Receive hello packet from port %d", port);
 		output(0).push(q);
 
 	} else if(header->type == UPDATE) {
@@ -44,7 +43,6 @@ PacketClassifier::push(int port, Packet *p) {
 		WritablePacket *q = p->push(sizeof(uint8_t));
 		uint8_t *portNum = (uint8_t*) q->data();
 		*portNum = *((uint8_t*)(&port));
-		click_chatter("[PacketClassifier] Receive update packet from port %d", port);
 		output(1).push(q);
 
 	} else if(header->type == ACK) {
@@ -52,7 +50,7 @@ PacketClassifier::push(int port, Packet *p) {
 
 	} else if(header->type == DATA){
 		struct DataPacket *format = (struct DataPacket*) p->data();
-		click_chatter("[PacketClassifier] Receive data packet from source %d to %d , %d, %d", format->sourceAddr, format->destinationAddr1, format->destinationAddr2,format->destinationAddr3);
+		click_chatter("[PacketClassifier] Receive data packet from source %d to %d , %d", format->sourceAddr, format->destinationAddr1, format->destinationAddr2);
 		output(3).push(p);
 
 	}else{

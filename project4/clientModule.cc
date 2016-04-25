@@ -82,12 +82,9 @@ ClientModule::push(int port, Packet *packet) {
 	if(format->type == DATA){
 		click_chatter("[ClientModule] Receiving data packet from source %d with sequence %d", format->sourceAddr, format->sequenceNumber);
 		this->sendAck(format->sourceAddr, format->sequenceNumber);
-    
-    click_chatter("[ClientModule] Already sent an ack to source %d with sequence %d", format->sourceAddr, format->sequenceNumber);
 	}
 
 	if(format->type == ACK){
-    click_chatter("[ClientModule] Receiving an ack from sequence %d", this->dataSequence);
 		ackTable.set(this->dataSequence, true);
 	}
 
@@ -108,7 +105,6 @@ ClientModule::push(int port, Packet *packet) {
 void
 ClientModule::sendData(){
 	 if(ackTable.get(this->dataSequence) == true){
-    //this->dataSequence has been acked, so move to next sequence
     	this->dataSequence++;
      }
   
@@ -152,7 +148,6 @@ ClientModule::sendHello(){
     format->type = HELLO;
     format->sourceAddr = this->_myAddr;
     format->sequenceNumber = this->helloSequence;
-    click_chatter("[ClientModule] Sending an helloMsg from sequence %d", this->helloSequence);
     output(0).push(helloPacket);
 }
 

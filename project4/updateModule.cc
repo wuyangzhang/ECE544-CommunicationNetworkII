@@ -80,7 +80,7 @@ UpdateModule::push(int port, Packet *packet) {
 	uint8_t* portNum = (uint8_t*)packet->data();
 	struct UpdatePacket* updatePacket = (struct UpdatePacket*)(portNum+1);
 
- 	click_chatter("[UpdateModule] Receiving Update Packet from Source %d with sequence %d from port %d", updatePacket->sourceAddr, updatePacket->sequenceNumber, *portNum);
+ 	//click_chatter("[UpdateModule] Receiving Update Packet from Source %d with sequence %d from port %d", updatePacket->sourceAddr, updatePacket->sequenceNumber, *portNum);
 
   /* update routing table && forwarding table */
   uint16_t routingTableRowCount = updatePacket->length;
@@ -92,13 +92,6 @@ UpdateModule::push(int port, Packet *packet) {
 
   castSrcAddr = (uint16_t*)(updatePacket+1);
   for(uint16_t i = 0; i < routingTableRowCount; i++){
-    /*
-    struct routingTableParam{
-            uint32_t cost;
-            uint16_t hopCount; //size of list nextHop /
-            Vector<uint16_t> nextHop; //store multiple next hop/
-        };
-    */
     castCost = (uint32_t*)(castSrcAddr+1);
     castHopCount = (uint16_t*)(castCost+1);
     castNextHop = (uint16_t*)(castHopCount+1);
@@ -145,7 +138,7 @@ UpdateModule::sendUpdate(){
   
   int routingTableSize = 0;
   uint16_t routingTableRowCount = 0;
-  for(HashTable<uint16_t,struct RoutingTable::routingTableParam*>::iterator it = this->routingTable->routingTable.begin(); it != this->routingTable->routingTable.end(); ++it){
+  for(HashTable<uint16_t,struct RoutingTable::routingTableParam*>::iterator it = this->routingTable->routingTable.begin(); it; ++it){
       routingTableSize += ( sizeof(uint16_t) + sizeof(uint32_t) + sizeof(uint16_t) + sizeof(uint16_t) * it.value()->hopCount );
        /* src uint16_t + cost uint32_t + hopCount uint16_t + nextHop uint16_t*hopCount */
       routingTableRowCount++;

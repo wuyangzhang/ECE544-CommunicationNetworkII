@@ -26,13 +26,11 @@ void
 AckModule::push(int port, Packet *packet) {
 	assert(packet);
 	if(port == 0){
-		//[0]ack, receive an ack, update table
 		struct AckPacket* ackPacket = (struct AckPacket*)packet->data();
 		ackTable.set(ackPacket->sequenceNumber, true);
 		//click_chatter("[AckModule] Receiving Ack Packet from Source %d with sequence %d", ackPacket->sourceAddr, ackPacket->sequenceNumber);
 		packet->kill();
 	}else if(port ==1){
-		//[1]ack , send ack
 		this->sendAck(packet);
 	}
 	
