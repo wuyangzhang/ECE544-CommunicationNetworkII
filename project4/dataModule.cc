@@ -563,7 +563,75 @@ DataModule::push(int port, Packet *packet) {
                   output(forwardingPortSet2.front()).push(p2);
 
                 }
-            } else {
+            } else if(cost3 < cost1) {
+                  //choose D3, and check whether D1 or D2 share nextHop with D3
+                  //first check D1 and D3
+                  uint8_t bitmapS = bitmap1 & bitmap3;
+                  if((bitmap1 & bitmap3) != 0) {
+                      //choose D1 and D3
+                      int sharedPort = 0;
+                      while(bitmapS != 0){
+                        bitmapS = bitmapS >> 1;
+                        sharedPort++;
+                      }
+
+                      WritablePacket *p1 = Packet::make(0,0,packet->length(),0);
+                      memcpy(p1->data(), packet->data(),packet->length());
+
+                      struct DataPacket *dataPacket1 = (struct DataPacket*) p1->data();
+                      dataPacket1->k_value = 2;
+                      dataPacket1->destinationAddr1 = destinationAddr1;
+                      dataPacket1->destinationAddr2 = destinationAddr3;
+                      dataPacket1->destinationAddr3 = 0;
+
+                      output(sharedPort).push(p1);
+
+                  }else if((bitmap2 & bitmap3) != 0){
+                      //choose D2 and D3
+                      uint8_t bitmapS = bitmap2 & bitmap3;
+                      int sharedPort = 0;
+                      while(bitmapS != 0){
+                        bitmapS = bitmapS >> 1;
+                        sharedPort++;
+                      }
+
+                      WritablePacket *p1 = Packet::make(0,0,packet->length(),0);
+                      memcpy(p1->data(), packet->data(),packet->length());
+
+                      struct DataPacket *dataPacket1 = (struct DataPacket*) p1->data();
+                      dataPacket1->k_value = 2;
+                      dataPacket1->destinationAddr1 = destinationAddr2;
+                      dataPacket1->destinationAddr2 = destinationAddr3;
+                      dataPacket1->destinationAddr3 = 0;
+
+                      output(sharedPort).push(p1);
+
+                  }else {
+                    //choose D1 and D3, split
+                      WritablePacket *p1 = Packet::make(0,0,packet->length(),0);
+                      memcpy(p1->data(), packet->data(),packet->length());
+                      WritablePacket *p2 = Packet::make(0,0,packet->length(),0);
+                      memcpy(p2->data(), packet->data(),packet->length());
+
+                      struct DataPacket *dataPacket1 = (struct DataPacket*) p1->data();
+                      struct DataPacket *dataPacket2 = (struct DataPacket*) p2->data();
+
+                      dataPacket1->k_value = 1;
+                      dataPacket2->k_value = 1;
+
+                      dataPacket1->destinationAddr1 = destinationAddr1;
+                      dataPacket1->destinationAddr2 = 0;
+                      dataPacket1->destinationAddr3 = 0;
+                      dataPacket2->destinationAddr1 = destinationAddr3;
+                      dataPacket2->destinationAddr2 = 0;
+                      dataPacket2->destinationAddr3 = 0;
+
+                      output(forwardingPortSet1.front()).push(p1);
+                      output(forwardingPortSet3.front()).push(p2); 
+
+                  }
+
+            }else{
               //cost1 == cost2 == cost3
               //check whether 2 of them share nextHop
 
@@ -586,7 +654,7 @@ DataModule::push(int port, Packet *packet) {
                   dataPacket1->destinationAddr3 = 0;
 
                   output(sharedPort).push(p1);
-                } else {
+                }else {
                     //1 and 2 share no path
                     //check whether 1 and 3 share path
                     bitmapS = bitmap1 & bitmap3;
@@ -691,7 +759,7 @@ DataModule::push(int port, Packet *packet) {
       packet->kill();
   }
 
-  if(dataPacket->k_value == 3){
+  if(dataPacket->k_value == 3) {
       forwardingPortSet1 = this->routingTable->lookUpForwardingTable(dataPacket->destinationAddr1);
       forwardingPortSet2 = this->routingTable->lookUpForwardingTable(dataPacket->destinationAddr2);
       forwardingPortSet3 = this->routingTable->lookUpForwardingTable(dataPacket->destinationAddr3);
@@ -743,6 +811,7 @@ DataModule::push(int port, Packet *packet) {
             bitmapS = bitmapS >> 1;
             sharedPort++;
           }
+
           WritablePacket *p1 = Packet::make(0,0,packet->length(),0);
           memcpy(p1->data(), packet->data(),packet->length());
 
