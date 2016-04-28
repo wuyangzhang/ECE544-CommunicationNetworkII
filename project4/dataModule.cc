@@ -143,21 +143,547 @@ DataModule::push(int port, Packet *packet) {
                                -> no share  
       between D1 and D2, D1 and D3 , D2 and D3
     */
-
       forwardingPortSet1 = this->routingTable->lookUpForwardingTable(dataPacket->destinationAddr1);
       forwardingPortSet2 = this->routingTable->lookUpForwardingTable(dataPacket->destinationAddr2);
       forwardingPortSet3 = this->routingTable->lookUpForwardingTable(dataPacket->destinationAddr3);
 
       for(Vector<uint8_t>::iterator it = forwardingPortSet1.begin(); it != forwardingPortSet1.end(); ++it){
-         bitmap1 = bitmap1 | (1<<*it);
+          bitmap1 = bitmap1 | (1<<*it);
       }
       for(Vector<uint8_t>::iterator it = forwardingPortSet2.begin(); it != forwardingPortSet2.end(); ++it){
-         bitmap2 = bitmap2 | (1<<*it);
+          bitmap2 = bitmap2 | (1<<*it);
       }
       for(Vector<uint8_t>::iterator it = forwardingPortSet3.begin(); it != forwardingPortSet3.end(); ++it){
          bitmap3 = bitmap3 | (1<<*it);
       }
-      uint8_t bitmapS = bitmap1 & bitmap2 & bitmap3;
+      
+
+      if(dataPacket->destinationAddr3 == 0) {
+          uint8_t bitmapS = bitmap1 & bitmap2;
+          if(bitmapS != 0) {
+            int sharedPort = 0;
+            while(bitmapS != 0){
+              bitmapS = bitmapS >> 1;
+              sharedPort++;
+            }
+            output(sharedPort).push(packet);
+          } else {
+            //no share path, split
+            WritablePacket *p1 = Packet::make(0,0,packet->length(),0);
+            memcpy(p1->data(), packet->data(),packet->length());
+
+            WritablePacket *p2 = Packet::make(0,0,packet->length(),0);
+            memcpy(p2->data(), packet->data(),packet->length());
+
+           struct DataPacket *dataPacket1 = (struct DataPacket*) p1->data();
+           struct DataPacket *dataPacket2 = (struct DataPacket*) p2->data();
+           dataPacket1->k_value = 1;
+           dataPacket2->k_value = 1;
+           /*set destinationAddr2 and destinationAddr3 to be 0*/
+           dataPacket1->destinationAddr1 = destinationAddr1;
+           dataPacket1->destinationAddr2 = 0;
+           dataPacket1->destinationAddr3 = 0;
+           dataPacket2->destinationAddr1 = destinationAddr2;
+           dataPacket2->destinationAddr2 = 0;
+           dataPacket2->destinationAddr3 = 0;
+           output(forwardingPortSet1.front()).push(p1);
+           output(forwardingPortSet2.front()).push(p2);
+           
+          }
+      } else {
+          //choose 2 out of 3 destination
+          //uint8_t bitmapS = bitmap1 & bitmap2 & bitmap3;
+          uint32_t cost1 = this->routingTable->routingTable.get(dataPacket->destinationAddr1)->cost;
+          uint32_t cost2 = this->routingTable->routingTable.get(dataPacket->destinationAddr2)->cost;
+          uint32_t cost3 = this->routingTable->routingTable.get(dataPacket->destinationAddr3)->cost;
+          if(cost1 < cost2) {
+            if(cost2 < cost3) {
+                //choose 1 and 2
+
+                //check whether share same port
+                uint8_t bitmapS = bitmap1 & bitmap2;
+                if(bitmapS != 0) {
+                  int sharedPort = 0;
+                  while(bitmapS != 0){
+                    bitmapS = bitmapS >> 1;
+                    sharedPort++;
+                  }
+
+                  WritablePacket *p1 = Packet::make(0,0,packet->length(),0);
+                  memcpy(p1->data(), packet->data(),packet->length());
+
+                  struct DataPacket *dataPacket1 = (struct DataPacket*) p1->data();
+                  dataPacket1->k_value = 2;
+                  dataPacket1->destinationAddr1 = destinationAddr1;
+                  dataPacket1->destinationAddr2 = destinationAddr2;
+                  dataPacket1->destinationAddr3 = 0;
+
+                  output(sharedPort).push(p1);
+
+                } else {
+                  WritablePacket *p1 = Packet::make(0,0,packet->length(),0);
+                  memcpy(p1->data(), packet->data(),packet->length());
+                  WritablePacket *p2 = Packet::make(0,0,packet->length(),0);
+                  memcpy(p2->data(), packet->data(),packet->length());
+
+                  struct DataPacket *dataPacket1 = (struct DataPacket*) p1->data();
+                  struct DataPacket *dataPacket2 = (struct DataPacket*) p2->data();
+
+                  dataPacket1->k_value = 1;
+                  dataPacket2->k_value = 1;
+
+                  dataPacket1->destinationAddr1 = destinationAddr1;
+                  dataPacket1->destinationAddr2 = 0;
+                  dataPacket1->destinationAddr3 = 0;
+                  dataPacket2->destinationAddr1 = destinationAddr2;
+                  dataPacket2->destinationAddr2 = 0;
+                  dataPacket2->destinationAddr3 = 0;
+
+                  output(forwardingPortSet1.front()).push(p1);
+                  output(forwardingPortSet2.front()).push(p2);
+
+                }
+
+            } else if(cost2 > cost3) {
+              //choose 1 and 3
+              //check whether share same port
+                uint8_t bitmapS = bitmap1 & bitmap3;
+                if(bitmapS != 0) {
+                  int sharedPort = 0;
+                  while(bitmapS != 0){
+                    bitmapS = bitmapS >> 1;
+                    sharedPort++;
+                  }
+
+                  WritablePacket *p1 = Packet::make(0,0,packet->length(),0);
+                  memcpy(p1->data(), packet->data(),packet->length());
+
+                  struct DataPacket *dataPacket1 = (struct DataPacket*) p1->data();
+                  dataPacket1->k_value = 2;
+                  dataPacket1->destinationAddr1 = destinationAddr1;
+                  dataPacket1->destinationAddr2 = destinationAddr3;
+                  dataPacket1->destinationAddr3 = 0;
+
+                  output(sharedPort).push(p1);
+                } else {
+                  WritablePacket *p1 = Packet::make(0,0,packet->length(),0);
+                  memcpy(p1->data(), packet->data(),packet->length());
+                  WritablePacket *p2 = Packet::make(0,0,packet->length(),0);
+                  memcpy(p2->data(), packet->data(),packet->length());
+
+                  struct DataPacket *dataPacket1 = (struct DataPacket*) p1->data();
+                  struct DataPacket *dataPacket2 = (struct DataPacket*) p2->data();
+
+                  dataPacket1->k_value = 1;
+                  dataPacket2->k_value = 1;
+
+                  dataPacket1->destinationAddr1 = destinationAddr1;
+                  dataPacket1->destinationAddr2 = 0;
+                  dataPacket1->destinationAddr3 = 0;
+                  dataPacket2->destinationAddr1 = destinationAddr3;
+                  dataPacket2->destinationAddr2 = 0;
+                  dataPacket2->destinationAddr3 = 0;
+
+                  output(forwardingPortSet1.front()).push(p1);
+                  output(forwardingPortSet3.front()).push(p2);
+
+                }
+            } else {
+              //cost1 < cost2 == cost3 
+              //check whether D3 share nextHop with D1
+              //if yes, choose 1 and 3
+              uint8_t bitmapS = bitmap1 & bitmap3;
+                if(bitmapS != 0) {
+                  int sharedPort = 0;
+                  while(bitmapS != 0){
+                    bitmapS = bitmapS >> 1;
+                    sharedPort++;
+                  }
+
+                  WritablePacket *p1 = Packet::make(0,0,packet->length(),0);
+                  memcpy(p1->data(), packet->data(),packet->length());
+
+                  struct DataPacket *dataPacket1 = (struct DataPacket*) p1->data();
+                  dataPacket1->k_value = 2;
+                  dataPacket1->destinationAddr1 = destinationAddr1;
+                  dataPacket1->destinationAddr2 = destinationAddr3;
+                  dataPacket1->destinationAddr3 = 0;
+
+                  output(sharedPort).push(p1);
+                } else { //if not, check whether 1 and 2 share path
+                    uint8_t bitmapS = bitmap1 & bitmap2;
+                    if(bitmapS != 0) {
+                      int sharedPort = 0;
+                      while(bitmapS != 0){
+                        bitmapS = bitmapS >> 1;
+                        sharedPort++;
+                      }
+
+                      WritablePacket *p1 = Packet::make(0,0,packet->length(),0);
+                      memcpy(p1->data(), packet->data(),packet->length());
+
+                      struct DataPacket *dataPacket1 = (struct DataPacket*) p1->data();
+                      dataPacket1->k_value = 2;
+                      dataPacket1->destinationAddr1 = destinationAddr1;
+                      dataPacket1->destinationAddr2 = destinationAddr2;
+                      dataPacket1->destinationAddr3 = 0;
+
+                      output(sharedPort).push(p1);
+
+                    } else {
+                      //no share path, split
+                      WritablePacket *p1 = Packet::make(0,0,packet->length(),0);
+                      memcpy(p1->data(), packet->data(),packet->length());
+                      WritablePacket *p2 = Packet::make(0,0,packet->length(),0);
+                      memcpy(p2->data(), packet->data(),packet->length());
+
+                      struct DataPacket *dataPacket1 = (struct DataPacket*) p1->data();
+                      struct DataPacket *dataPacket2 = (struct DataPacket*) p2->data();
+
+                      dataPacket1->k_value = 1;
+                      dataPacket2->k_value = 1;
+
+                      dataPacket1->destinationAddr1 = destinationAddr1;
+                      dataPacket1->destinationAddr2 = 0;
+                      dataPacket1->destinationAddr3 = 0;
+                      dataPacket2->destinationAddr1 = destinationAddr2;
+                      dataPacket2->destinationAddr2 = 0;
+                      dataPacket2->destinationAddr3 = 0;
+
+                      output(forwardingPortSet1.front()).push(p1);
+                      output(forwardingPortSet2.front()).push(p2);
+
+                    }
+
+                  }
+              }
+          } else if(cost1 > cost2){
+            if(cost1 > cost3) {
+              //choose 2 and 3
+              //check whether share same port
+                uint8_t bitmapS = bitmap2 & bitmap3;
+                if(bitmapS != 0) {
+                  int sharedPort = 0;
+                  while(bitmapS != 0){
+                    bitmapS = bitmapS >> 1;
+                    sharedPort++;
+                  }
+
+                  WritablePacket *p1 = Packet::make(0,0,packet->length(),0);
+                  memcpy(p1->data(), packet->data(),packet->length());
+
+                  struct DataPacket *dataPacket1 = (struct DataPacket*) p1->data();
+                  dataPacket1->k_value = 2;
+                  dataPacket1->destinationAddr1 = destinationAddr2;
+                  dataPacket1->destinationAddr2 = destinationAddr3;
+                  dataPacket1->destinationAddr3 = 0;
+
+                  output(sharedPort).push(p1);
+
+                } else {
+                  WritablePacket *p1 = Packet::make(0,0,packet->length(),0);
+                  memcpy(p1->data(), packet->data(),packet->length());
+                  WritablePacket *p2 = Packet::make(0,0,packet->length(),0);
+                  memcpy(p2->data(), packet->data(),packet->length());
+
+                  struct DataPacket *dataPacket1 = (struct DataPacket*) p1->data();
+                  struct DataPacket *dataPacket2 = (struct DataPacket*) p2->data();
+
+                  dataPacket1->k_value = 1;
+                  dataPacket2->k_value = 1;
+
+                  dataPacket1->destinationAddr1 = destinationAddr2;
+                  dataPacket1->destinationAddr2 = 0;
+                  dataPacket1->destinationAddr3 = 0;
+                  dataPacket2->destinationAddr1 = destinationAddr3;
+                  dataPacket2->destinationAddr2 = 0;
+                  dataPacket2->destinationAddr3 = 0;
+
+                  output(forwardingPortSet2.front()).push(p1);
+                  output(forwardingPortSet3.front()).push(p2);
+
+                }
+            } else if (cost1 < cost3) {
+              //choose 1 and 2
+              //check whether share same port
+                uint8_t bitmapS = bitmap1 & bitmap2;
+                if(bitmapS != 0) {
+                  int sharedPort = 0;
+                  while(bitmapS != 0){
+                    bitmapS = bitmapS >> 1;
+                    sharedPort++;
+                  }
+
+                  WritablePacket *p1 = Packet::make(0,0,packet->length(),0);
+                  memcpy(p1->data(), packet->data(),packet->length());
+
+                  struct DataPacket *dataPacket1 = (struct DataPacket*) p1->data();
+                  dataPacket1->k_value = 2;
+                  dataPacket1->destinationAddr1 = destinationAddr1;
+                  dataPacket1->destinationAddr2 = destinationAddr2;
+                  dataPacket1->destinationAddr3 = 0;
+
+                  output(sharedPort).push(p1);
+
+                } else {
+                  WritablePacket *p1 = Packet::make(0,0,packet->length(),0);
+                  memcpy(p1->data(), packet->data(),packet->length());
+                  WritablePacket *p2 = Packet::make(0,0,packet->length(),0);
+                  memcpy(p2->data(), packet->data(),packet->length());
+
+                  struct DataPacket *dataPacket1 = (struct DataPacket*) p1->data();
+                  struct DataPacket *dataPacket2 = (struct DataPacket*) p2->data();
+
+                  dataPacket1->k_value = 1;
+                  dataPacket2->k_value = 1;
+
+                  dataPacket1->destinationAddr1 = destinationAddr1;
+                  dataPacket1->destinationAddr2 = 0;
+                  dataPacket1->destinationAddr3 = 0;
+                  dataPacket2->destinationAddr1 = destinationAddr2;
+                  dataPacket2->destinationAddr2 = 0;
+                  dataPacket2->destinationAddr3 = 0;
+
+                  output(forwardingPortSet1.front()).push(p1);
+                  output(forwardingPortSet2.front()).push(p2);
+
+                }
+            } else {
+              //check whether D1 share nextHop with D2
+              //if yes, choose 1 and 2
+              uint8_t bitmapS = bitmap1 & bitmap2;
+                if(bitmapS != 0) {
+                  int sharedPort = 0;
+                  while(bitmapS != 0){
+                    bitmapS = bitmapS >> 1;
+                    sharedPort++;
+                  }
+
+                  WritablePacket *p1 = Packet::make(0,0,packet->length(),0);
+                  memcpy(p1->data(), packet->data(),packet->length());
+
+                  struct DataPacket *dataPacket1 = (struct DataPacket*) p1->data();
+                  dataPacket1->k_value = 2;
+                  dataPacket1->destinationAddr1 = destinationAddr1;
+                  dataPacket1->destinationAddr2 = destinationAddr2;
+                  dataPacket1->destinationAddr3 = 0;
+
+                  output(sharedPort).push(p1);
+                } else { //if not, check whether 2 and 3 share path
+                    bitmapS = bitmap2 & bitmap3;
+                    if(bitmapS != 0) {
+                      int sharedPort = 0;
+                      while(bitmapS != 0){
+                        bitmapS = bitmapS >> 1;
+                        sharedPort++;
+                      }
+
+                      WritablePacket *p1 = Packet::make(0,0,packet->length(),0);
+                      memcpy(p1->data(), packet->data(),packet->length());
+
+                      struct DataPacket *dataPacket1 = (struct DataPacket*) p1->data();
+                      dataPacket1->k_value = 2;
+                      dataPacket1->destinationAddr1 = destinationAddr2;
+                      dataPacket1->destinationAddr2 = destinationAddr3;
+                      dataPacket1->destinationAddr3 = 0;
+
+                      output(sharedPort).push(p1);
+
+                    } else {
+                      //no share path, split
+                      WritablePacket *p1 = Packet::make(0,0,packet->length(),0);
+                      memcpy(p1->data(), packet->data(),packet->length());
+                      WritablePacket *p2 = Packet::make(0,0,packet->length(),0);
+                      memcpy(p2->data(), packet->data(),packet->length());
+
+                      struct DataPacket *dataPacket1 = (struct DataPacket*) p1->data();
+                      struct DataPacket *dataPacket2 = (struct DataPacket*) p2->data();
+
+                      dataPacket1->k_value = 1;
+                      dataPacket2->k_value = 1;
+
+                      dataPacket1->destinationAddr1 = destinationAddr2;
+                      dataPacket1->destinationAddr2 = 0;
+                      dataPacket1->destinationAddr3 = 0;
+                      dataPacket2->destinationAddr1 = destinationAddr3;
+                      dataPacket2->destinationAddr2 = 0;
+                      dataPacket2->destinationAddr3 = 0;
+
+                      output(forwardingPortSet2.front()).push(p1);
+                      output(forwardingPortSet3.front()).push(p2);
+
+                    }
+
+                  }
+            }
+
+          } else {
+            if(cost3 > cost1) {
+              //choose 1 and 2
+              //check whether share same port
+                uint8_t bitmapS = bitmap1 & bitmap2;
+                if(bitmapS != 0) {
+                  int sharedPort = 0;
+                  while(bitmapS != 0){
+                    bitmapS = bitmapS >> 1;
+                    sharedPort++;
+                  }
+
+                  WritablePacket *p1 = Packet::make(0,0,packet->length(),0);
+                  memcpy(p1->data(), packet->data(),packet->length());
+
+                  struct DataPacket *dataPacket1 = (struct DataPacket*) p1->data();
+                  dataPacket1->k_value = 2;
+                  dataPacket1->destinationAddr1 = destinationAddr1;
+                  dataPacket1->destinationAddr2 = destinationAddr2;
+                  dataPacket1->destinationAddr3 = 0;
+
+                  output(sharedPort).push(p1);
+
+                } else {
+                  WritablePacket *p1 = Packet::make(0,0,packet->length(),0);
+                  memcpy(p1->data(), packet->data(),packet->length());
+                  WritablePacket *p2 = Packet::make(0,0,packet->length(),0);
+                  memcpy(p2->data(), packet->data(),packet->length());
+
+                  struct DataPacket *dataPacket1 = (struct DataPacket*) p1->data();
+                  struct DataPacket *dataPacket2 = (struct DataPacket*) p2->data();
+
+                  dataPacket1->k_value = 1;
+                  dataPacket2->k_value = 1;
+
+                  dataPacket1->destinationAddr1 = destinationAddr1;
+                  dataPacket1->destinationAddr2 = 0;
+                  dataPacket1->destinationAddr3 = 0;
+                  dataPacket2->destinationAddr1 = destinationAddr2;
+                  dataPacket2->destinationAddr2 = 0;
+                  dataPacket2->destinationAddr3 = 0;
+
+                  output(forwardingPortSet1.front()).push(p1);
+                  output(forwardingPortSet2.front()).push(p2);
+
+                }
+            } else {
+              //cost1 == cost2 == cost3
+              //check whether 2 of them share nextHop
+
+                //if 1 and 2 share path , choose 1 and 2
+                uint8_t bitmapS = bitmap1 & bitmap2;
+                if(bitmapS != 0) {
+                  int sharedPort = 0;
+                  while(bitmapS != 0){
+                    bitmapS = bitmapS >> 1;
+                    sharedPort++;
+                  }
+
+                  WritablePacket *p1 = Packet::make(0,0,packet->length(),0);
+                  memcpy(p1->data(), packet->data(),packet->length());
+
+                  struct DataPacket *dataPacket1 = (struct DataPacket*) p1->data();
+                  dataPacket1->k_value = 2;
+                  dataPacket1->destinationAddr1 = destinationAddr1;
+                  dataPacket1->destinationAddr2 = destinationAddr2;
+                  dataPacket1->destinationAddr3 = 0;
+
+                  output(sharedPort).push(p1);
+                } else {
+                    //1 and 2 share no path
+                    //check whether 1 and 3 share path
+                    bitmapS = bitmap1 & bitmap3;
+                    if(bitmapS != 0) {
+                      int sharedPort = 0;
+                      while(bitmapS != 0){
+                        bitmapS = bitmapS >> 1;
+                        sharedPort++;
+                      }
+
+                      WritablePacket *p1 = Packet::make(0,0,packet->length(),0);
+                      memcpy(p1->data(), packet->data(),packet->length());
+
+                      struct DataPacket *dataPacket1 = (struct DataPacket*) p1->data();
+                      dataPacket1->k_value = 2;
+                      dataPacket1->destinationAddr1 = destinationAddr1;
+                      dataPacket1->destinationAddr2 = destinationAddr3;
+                      dataPacket1->destinationAddr3 = 0;
+
+                      output(sharedPort).push(p1);
+                    } else {
+                      // 1 and 3 share no path
+                      //check whether 2 and 3 share path
+                       bitmapS = bitmap2 & bitmap3;
+                      if(bitmapS != 0) {
+                        int sharedPort = 0;
+                        while(bitmapS != 0){
+                          bitmapS = bitmapS >> 1;
+                          sharedPort++;
+                        }
+
+                        WritablePacket *p1 = Packet::make(0,0,packet->length(),0);
+                        memcpy(p1->data(), packet->data(),packet->length());
+
+                        struct DataPacket *dataPacket1 = (struct DataPacket*) p1->data();
+                        dataPacket1->k_value = 2;
+                        dataPacket1->destinationAddr1 = destinationAddr2;
+                        dataPacket1->destinationAddr2 = destinationAddr3;
+                        dataPacket1->destinationAddr3 = 0;
+
+                        output(sharedPort).push(p1);
+                      } else {
+                          //2 and 3 share no path
+                          //choose 1 and 2
+                          //check whether share same port
+                          bitmapS = bitmap1 & bitmap2;
+                          if(bitmapS != 0) {
+                            int sharedPort = 0;
+                            while(bitmapS != 0){
+                              bitmapS = bitmapS >> 1;
+                              sharedPort++;
+                            }
+
+                            WritablePacket *p1 = Packet::make(0,0,packet->length(),0);
+                            memcpy(p1->data(), packet->data(),packet->length());
+
+                            struct DataPacket *dataPacket1 = (struct DataPacket*) p1->data();
+                            dataPacket1->k_value = 2;
+                            dataPacket1->destinationAddr1 = destinationAddr1;
+                            dataPacket1->destinationAddr2 = destinationAddr2;
+                            dataPacket1->destinationAddr3 = 0;
+
+                            output(sharedPort).push(p1);
+
+                          } else {
+                            WritablePacket *p1 = Packet::make(0,0,packet->length(),0);
+                            memcpy(p1->data(), packet->data(),packet->length());
+                            WritablePacket *p2 = Packet::make(0,0,packet->length(),0);
+                            memcpy(p2->data(), packet->data(),packet->length());
+
+                            struct DataPacket *dataPacket1 = (struct DataPacket*) p1->data();
+                            struct DataPacket *dataPacket2 = (struct DataPacket*) p2->data();
+
+                            dataPacket1->k_value = 1;
+                            dataPacket2->k_value = 1;
+
+                            dataPacket1->destinationAddr1 = destinationAddr1;
+                            dataPacket1->destinationAddr2 = 0;
+                            dataPacket1->destinationAddr3 = 0;
+                            dataPacket2->destinationAddr1 = destinationAddr2;
+                            dataPacket2->destinationAddr2 = 0;
+                            dataPacket2->destinationAddr3 = 0;
+
+                            output(forwardingPortSet1.front()).push(p1);
+                            output(forwardingPortSet2.front()).push(p2);
+
+                          }
+                      } 
+
+                    }
+                } 
+
+            }
+          }
+
+      }
+      
       
 
 
@@ -226,10 +752,14 @@ DataModule::push(int port, Packet *packet) {
           struct DataPacket *dataPacket1 = (struct DataPacket*) p1->data();
           struct DataPacket *dataPacket2 = (struct DataPacket*) p2->data();
           dataPacket1->k_value = 2;
-          dataPacket2->k_value = 1;
           dataPacket1->destinationAddr1 = dataPacket->destinationAddr1;
           dataPacket1->destinationAddr2 = dataPacket->destinationAddr2;
+          dataPacket1->destinationAddr3 = 0;
+
+          dataPacket2->k_value = 1;
           dataPacket2->destinationAddr1 = dataPacket->destinationAddr3;
+          dataPacket2->destinationAddr2 = 0;
+          dataPacket2->destinationAddr3 = 0;
           output(sharedPort).push(p1);
           output(forwardingPortSet3.front()).push(p2);
 
@@ -249,14 +779,18 @@ DataModule::push(int port, Packet *packet) {
 
           struct DataPacket *dataPacket1 = (struct DataPacket*) p1->data();
           struct DataPacket *dataPacket2 = (struct DataPacket*) p2->data();
+          dataPacket1->k_value = 2;
           dataPacket2->k_value = 1;
           dataPacket1->destinationAddr1 = dataPacket->destinationAddr1;
           dataPacket1->destinationAddr2 = dataPacket->destinationAddr3;
+          dataPacket1->destinationAddr3 = 0;
           dataPacket2->destinationAddr1 = dataPacket->destinationAddr2;
+          dataPacket2->destinationAddr2 = 0;
+          dataPacket2->destinationAddr3 = 0;
           output(sharedPort).push(p1);
           output(forwardingPortSet2.front()).push(p2);
 
-      }else if ((bitmap2 & bitmap3 != 0)) {
+      }else if ((bitmap2 & bitmap3) != 0) {
           // only 2 and 3 share path
           bitmapS = bitmap2 & bitmap3;
           int sharedPort = 0;
@@ -274,9 +808,12 @@ DataModule::push(int port, Packet *packet) {
           dataPacket1->k_value = 1;
           dataPacket2->k_value = 2;
           dataPacket1->destinationAddr1 = dataPacket->destinationAddr1;
+          dataPacket1->destinationAddr2 = 0;
+          dataPacket1->destinationAddr3 = 0;
           dataPacket2->destinationAddr1 = dataPacket->destinationAddr2;
           dataPacket2->destinationAddr2 = dataPacket->destinationAddr3;
-          output(forwardingPortSet3.front()).push(p1);
+          dataPacket1->destinationAddr3 = 0;
+          output(forwardingPortSet1.front()).push(p1);
           output(sharedPort).push(p2);
 
       }else {  
