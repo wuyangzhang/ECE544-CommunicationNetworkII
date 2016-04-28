@@ -83,7 +83,7 @@ ClientModule::push(int port, Packet *packet) {
 		click_chatter("[ClientModule] Receiving data packet from source %d with sequence %d", format->sourceAddr, format->sequenceNumber);
 		this->sendAck(format->sourceAddr, format->sequenceNumber);
     
-    click_chatter("[ClientModule] Already sent an ack to source %d with sequence %d", format->sourceAddr, format->sequenceNumber);
+    //click_chatter("[ClientModule] Already sent an ack to source %d with sequence %d", format->sourceAddr, format->sequenceNumber);
 	}
 
 	if(format->type == ACK){
@@ -123,8 +123,9 @@ ClientModule::sendData(){
 	 format->destinationAddr3 = this->_otherAddr3;
 	 format->sequenceNumber = this->dataSequence;
 	 format->length = 5;
-
-	 output(0).push(dataPacket);
+   click_chatter("[ClientModule] Sending a data packet from %d to %d, %d and %d. K = %d. sequence is %d",format->sourceAddr,format->destinationAddr1,format->destinationAddr2,format->destinationAddr3,format->k_value,format->sequenceNumber);
+	 
+   output(0).push(dataPacket);
 }
 
 void

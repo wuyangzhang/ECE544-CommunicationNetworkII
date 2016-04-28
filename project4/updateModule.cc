@@ -80,7 +80,7 @@ UpdateModule::push(int port, Packet *packet) {
 	uint8_t* portNum = (uint8_t*)packet->data();
 	struct UpdatePacket* updatePacket = (struct UpdatePacket*)(portNum+1);
 
- 	click_chatter("[UpdateModule] Receiving Update Packet from Router %d with sequence %d from port %d", updatePacket->sourceAddr, updatePacket->sequenceNumber, *portNum);
+ 	click_chatter("[UpdateModule] Receiving Update Packet from Source %d with sequence %d from port %d", updatePacket->sourceAddr, updatePacket->sequenceNumber, *portNum);
 
   /* update routing table && forwarding table */
   uint16_t routingTableRowCount = updatePacket->length;

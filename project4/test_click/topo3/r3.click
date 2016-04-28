@@ -43,19 +43,20 @@ define($dev20 veth20, $addrDev20 2e:3e:88:bc:ff:a4)
 //																							 \
 //																						   [veth20]Client3
 //
-
 // ************************* define router output link ! **********************************************************************
-rp0::RouterPort(DEV $dev2, IN_MAC $addrDev2, OUT_MAC $addrDev1)
-rp1::RouterPort(DEV $dev3, IN_MAC $addrDev3, OUT_MAC $addrDev4)
-rp2::RouterPort(DEV $dev12, IN_MAC $addrDev12, OUT_MAC $addrDev11)
+rp0::RouterPort(DEV $dev6, IN_MAC $addrDev6, OUT_MAC $addrDev5)
+rp1::RouterPort(DEV $dev7, IN_MAC $addrDev7, OUT_MAC $addrDev8)
+rp2::RouterPort(DEV $dev9, IN_MAC $addrDev9, OUT_MAC $addrDev10)
 
 
 cl::PacketClassifier()
 ack::AckModule()
+
 // ************************* @initiate address ! **********************************************************************
-rt::RoutingTable(MY_ADDRESS 1)
-hello::HelloModule(MY_ADDRESS 1, DELAY 1, PERIOD 5, TIME_OUT 2, ACK_TABLE ack, ROUTING_TABLE rt)
-update::UpdateModule(MY_ADDRESS 1,DELAY 5, PERIOD 5, TIME_OUT 2,  ACK_TABLE ack, ROUTING_TABLE rt)
+rt::RoutingTable(MY_ADDRESS 3)
+hello::HelloModule(MY_ADDRESS 3, DELAY 1, PERIOD 5, TIME_OUT 2, ACK_TABLE ack, ROUTING_TABLE rt)
+update::UpdateModule(MY_ADDRESS 3,DELAY 5, PERIOD 5, TIME_OUT 2,  ACK_TABLE ack, ROUTING_TABLE rt)
+
 data::DataModule(ROUTING_TABLE rt)
 bd::BroadcastModule()
 //------------------------------------------------------------------------------------------------------------------------------
@@ -80,20 +81,17 @@ hello[1]->[1]ack
 update[0]->bd
 update[1]->[1]ack
 
-
-
 // *************************@ack connect to all valid out port !*************************
 ack[0]->rp0
 ack[1]->rp1
 ack[2]->rp2
 
-// *************************@broadcast packet to all valid out ports, except access router************************
-bd[0]->Discard
-bd[1]->rp1
+// *************************@broadcast packet to all valid out ports !*************************
+bd[0]->rp0
+bd[1]->Discard
 bd[2]->rp2
 bd[3]->Discard
 bd[4]->Discard
-
 // *************************@forward packet to all valid out ports !*************************
 data[0]->rp0
 data[1]->rp1

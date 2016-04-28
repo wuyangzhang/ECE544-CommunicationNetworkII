@@ -79,15 +79,15 @@ HelloModule::push(int port, Packet *packet) {
 
   	struct HelloPacket* helloPacket = (struct HelloPacket*)(portNum+1);
 
-    click_chatter("[HelloModule] Receiving Hello Packet from Source %d with sequence %d from port %d", helloPacket->sourceAddr, helloPacket->sequenceNumber, *portNum);
+    click_chatter("[HelloModule] Receiving Hello Message from source %d with sequence %d from port %d", helloPacket->sourceAddr, helloPacket->sequenceNumber, *portNum);
 
     /* update routing table */
     this->routingTable->computeRoutingTable(helloPacket->sourceAddr, 1, helloPacket->sourceAddr);
-    click_chatter("[HelloModule] call computeRoutingTable!");
+    //click_chatter("[HelloModule] call computeRoutingTable!");
 
     /* update forwarding table */
     this->routingTable->computeForwardingTable(helloPacket->sourceAddr, 1, *portNum);
-    click_chatter("[HelloModule] call computeForwardingTable!");
+    //click_chatter("[HelloModule] call computeForwardingTable!");
 
     /* send back ack */
     this->sendAck(*portNum, helloPacket->sequenceNumber, helloPacket->sourceAddr);
@@ -131,7 +131,7 @@ HelloModule::sendAck(const uint8_t portNum, const uint8_t sequenceNumber, const 
     *port = *((uint8_t*)(&portNum));
 
     output(1).push(q);
-    click_chatter("[HelloModule] Sending back ack to Dest %d with portNum %d and sequence %d!", sourceAddr,portNum,sequenceNumber);
+    click_chatter("[HelloModule] Sending Hello Ack to Dest %d with portNum %d and sequence %d!", sourceAddr,portNum,sequenceNumber);
 }
 CLICK_ENDDECLS 
 EXPORT_ELEMENT(HelloModule)

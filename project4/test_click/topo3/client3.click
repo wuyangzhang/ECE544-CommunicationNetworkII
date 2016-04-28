@@ -43,58 +43,13 @@ define($dev20 veth20, $addrDev20 2e:3e:88:bc:ff:a4)
 //																							 \
 //																						   [veth20]Client3
 //
+// ************************* define access router output link ! //**********************************************************************
+rp1::RouterPort(DEV $dev20, IN_MAC $addrDev20, OUT_MAC $addrDev19)
 
-// ************************* define router output link ! **********************************************************************
-rp0::RouterPort(DEV $dev2, IN_MAC $addrDev2, OUT_MAC $addrDev1)
-rp1::RouterPort(DEV $dev3, IN_MAC $addrDev3, OUT_MAC $addrDev4)
-rp2::RouterPort(DEV $dev12, IN_MAC $addrDev12, OUT_MAC $addrDev11)
+//client1::ClientModule(MY_ADDRESS 103, K 1, OTHER_ADDR1 101, OTHER_ADDR2 102, OTHER_ADDR3 100, DELAY 20, PERIOD 5, TIME_OUT 2)
+//client1::ClientModule(MY_ADDRESS 103, K 2, OTHER_ADDR1 101, OTHER_ADDR2 102, OTHER_ADDR3 100, DELAY 20, PERIOD 5, TIME_OUT 2)
+client1::ClientModule(MY_ADDRESS 103, K 3, OTHER_ADDR1 101, OTHER_ADDR2 102, OTHER_ADDR3 100, DELAY 20, PERIOD 5, TIME_OUT 2)
 
-
-cl::PacketClassifier()
-ack::AckModule()
-// ************************* @initiate address ! **********************************************************************
-rt::RoutingTable(MY_ADDRESS 1)
-hello::HelloModule(MY_ADDRESS 1, DELAY 1, PERIOD 5, TIME_OUT 2, ACK_TABLE ack, ROUTING_TABLE rt)
-update::UpdateModule(MY_ADDRESS 1,DELAY 5, PERIOD 5, TIME_OUT 2,  ACK_TABLE ack, ROUTING_TABLE rt)
-data::DataModule(ROUTING_TABLE rt)
-bd::BroadcastModule()
-//------------------------------------------------------------------------------------------------------------------------------
-
-// ************************* @all input ports forward packets to Packet Classifier !*************************
-rp0->[0]cl
-rp1->[1]cl
-rp2->[2]cl
-
-// packet classifier outport 0: hello, outport1: update, outport2: ack, output3: data
-// ack inport 0: receive ack packet, update ack table, inport 1: send out ack
-cl[0]->hello
-cl[1]->update
-cl[2]->[0]ack 
-cl[3]->data
-
-// hello outport 0: generate hello packet, send to broadcast, outport 1: receive a hello packet, send ack 
-hello[0]->bd
-hello[1]->[1]ack 
-
-// update outport 0: generate update packet, send to broadcast, outport 1: receive a update packet, send ack 
-update[0]->bd
-update[1]->[1]ack
+rp1->client1->rp1
 
 
-
-// *************************@ack connect to all valid out port !*************************
-ack[0]->rp0
-ack[1]->rp1
-ack[2]->rp2
-
-// *************************@broadcast packet to all valid out ports, except access router************************
-bd[0]->Discard
-bd[1]->rp1
-bd[2]->rp2
-bd[3]->Discard
-bd[4]->Discard
-
-// *************************@forward packet to all valid out ports !*************************
-data[0]->rp0
-data[1]->rp1
-data[2]->rp2

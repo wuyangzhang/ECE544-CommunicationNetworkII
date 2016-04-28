@@ -57,71 +57,56 @@ DataModule::push(int port, Packet *packet) {
   Vector<uint8_t> forwardingPortSet2;
   Vector<uint8_t> forwardingPortSet3;
 
-  uint8_t destinationAddr1 = dataPacket->destinationAddr1;
-  uint8_t destinationAddr2 = dataPacket->destinationAddr2;
-  uint8_t destinationAddr3 = dataPacket->destinationAddr3;
+  uint16_t destinationAddr1 = dataPacket->destinationAddr1;
+  uint16_t destinationAddr2 = dataPacket->destinationAddr2;
+  uint16_t destinationAddr3 = dataPacket->destinationAddr3;
+
 
   if(dataPacket->k_value == 1){
 
       /* UNICAST: find the minmimum cost */
       //check and set valid address
-      if(dataPacket->destinationAddr2 == 0 && dataPacket->destinationAddr3 == 0) {
-        
-        /*only destinationAddr1 is valid, do nothing*/
-
-      } else if(dataPacket->destinationAddr2 == 0) {
-
-        //compare cost between destinationAddr1 and destinationAddr3 
-        uint32_t cost1 = this->routingTable->routingTable.get(dataPacket->destinationAddr1)->cost;
-        uint32_t cost3 = this->routingTable->routingTable.get(dataPacket->destinationAddr3)->cost;
-        if(cost1 > cost3) {
-          dataPacket->destinationAddr1 = dataPacket->destinationAddr3;
-          dataPacket->destinationAddr3 = 0;
-        } else {
-          dataPacket->destinationAddr3 = 0;
-        }
-
-      } else if (dataPacket->destinationAddr3 == 0) {
-
+      if(dataPacket->destinationAddr2 == 0) {
+        //based on our design,destinationAddr3 must be 0 as well
+        /*Do nothing*/
+      } else if(dataPacket->destinationAddr3 == 0) {
         //compare cost between destinationAddr1 and destinationAddr2
-        uint32_t cost1 = this->routingTable->routingTable.get(dataPacket->destinationAddr1)->cost;
-        uint32_t cost2 = this->routingTable->routingTable.get(dataPacket->destinationAddr2)->cost;
-        if(cost1 > cost2) {
-          dataPacket->destinationAddr1 = dataPacket->destinationAddr2;
-          dataPacket->destinationAddr2 = 0;
-        } else {
-          dataPacket->destinationAddr2 = 0;
-        }
-
+          uint32_t cost1 = this->routingTable->routingTable.get(dataPacket->destinationAddr1)->cost;
+          uint32_t cost2 = this->routingTable->routingTable.get(dataPacket->destinationAddr2)->cost;
+          if(cost1 > cost2) {
+            dataPacket->destinationAddr1 = dataPacket->destinationAddr2;
+            dataPacket->destinationAddr2 = 0;
+          } else {
+            dataPacket->destinationAddr2 = 0;
+          }
       } else {
-
         //compare cost between destinationAddr1, destinationAddr2 and destinationAddr3 
-        uint32_t cost1 = this->routingTable->routingTable.get(dataPacket->destinationAddr1)->cost;
-        click_chatter("[DataModule]cost to destinationAddr1 is %d", cost1);
-        uint32_t cost2 = this->routingTable->routingTable.get(dataPacket->destinationAddr2)->cost;
-        click_chatter("[DataModule]cost to destinationAddr2 is %d", cost2);
-        if(cost1 > cost2) {
-          dataPacket->destinationAddr1 = dataPacket->destinationAddr2;
-          dataPacket->destinationAddr2 = 0;
-        } else {
-          dataPacket->destinationAddr2 = 0;
-        }
+          uint32_t cost1 = this->routingTable->routingTable.get(dataPacket->destinationAddr1)->cost;
+          click_chatter("[DataModule]cost to destinationAddr1 is %d", cost1);
+          uint32_t cost2 = this->routingTable->routingTable.get(dataPacket->destinationAddr2)->cost;
+          click_chatter("[DataModule]cost to destinationAddr2 is %d", cost2);
+          if(cost1 > cost2) {
+            dataPacket->destinationAddr1 = dataPacket->destinationAddr2;
+            dataPacket->destinationAddr2 = 0;
+          } else {
+            dataPacket->destinationAddr2 = 0;
+          }
 
-        cost1 = this->routingTable->routingTable.get(dataPacket->destinationAddr1)->cost;
-        click_chatter("[DataModule]cost to destinationAddr1 is %d", cost1);
-        uint32_t cost3 = this->routingTable->routingTable.get(dataPacket->destinationAddr3)->cost;
-        click_chatter("[DataModule]cost to destinationAddr3 is %d", cost3);
-        if(cost1 > cost3) {
-          dataPacket->destinationAddr1 = dataPacket->destinationAddr3;
-          dataPacket->destinationAddr3 = 0;
-        } else {
-          dataPacket->destinationAddr3 = 0;
-        }
-        
+          cost1 = this->routingTable->routingTable.get(dataPacket->destinationAddr1)->cost;
+          click_chatter("[DataModule]cost to destinationAddr1 is %d", cost1);
+          uint32_t cost3 = this->routingTable->routingTable.get(dataPacket->destinationAddr3)->cost;
+          click_chatter("[DataModule]cost to destinationAddr3 is %d", cost3);
+          if(cost1 > cost3) {
+            dataPacket->destinationAddr1 = dataPacket->destinationAddr3;
+            dataPacket->destinationAddr3 = 0;
+          } else {
+            dataPacket->destinationAddr3 = 0;
+          }
       }
 
       //now only destinationAddr1 is valid
       forwardingPortSet1 = this->routingTable->lookUpForwardingTable(dataPacket->destinationAddr1);
+      dataPacket->type = DATA;
       if(!forwardingPortSet1.empty()){
           output(forwardingPortSet1.front()).push(packet);
       }else{
