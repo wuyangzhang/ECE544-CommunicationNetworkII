@@ -34,7 +34,7 @@ class DataModule : public Element {
     int checkSharedPort(uint16_t, uint16_t, uint16_t);
     void sendPacket1(uint16_t, Packet* packet);
     void sendPacket1(uint16_t, uint16_t, int, Packet* packet);
-    void sendPacket2(uint16_t, uint16_t, uint16_t, int, Packet* );
+    void sendPacket2(uint16_t, uint16_t, uint16_t, int, Packet* packet);
 
 
 
