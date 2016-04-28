@@ -29,6 +29,16 @@ class DataModule : public Element {
 
     RoutingTable* routingTable;
 
+    Vector<uint16_t> sortCost(RoutingTable* routingTable , uint16_t , uint16_t , uint16_t );
+    int checkSharedPort(uint16_t, uint16_t );
+    int checkSharedPort(uint16_t, uint16_t, uint16_t);
+    void sendPacket1(uint16_t, Packet* packet);
+    void sendPacket1(uint16_t, uint16_t, int, Packet* packet);
+    void sendPacket2(uint16_t, uint16_t, uint16_t, int, Packet* );
+
+
+
+
 
 		
 }; 
