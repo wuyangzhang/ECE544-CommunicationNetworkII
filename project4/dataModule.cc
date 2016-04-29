@@ -154,6 +154,7 @@ DataModule::push(int port, Packet *packet) {
           dataPacket1->destinationAddr2 = DestAddr2;
           dataPacket1->destinationAddr3 = DestAddr3;
           output(sharedPort).push(p1);
+          //click_chatter("[DataModule] k = 3 all share port");
 
        } else {
           int sharedPort12 = checkSharedPort(DestAddr1, DestAddr2);
@@ -285,6 +286,9 @@ DataModule::checkSharedPort(uint16_t addr1, uint16_t addr2, uint16_t addr3) {
     for(Vector<uint8_t>::iterator it = forwardingPortSet2.begin(); it != forwardingPortSet2.end(); ++it){
           bitmap2 = bitmap2 | (1<<*it);
     }
+    for(Vector<uint8_t>::iterator it = forwardingPortSet3.begin(); it != forwardingPortSet3.end(); ++it){
+          bitmap3 = bitmap3 | (1<<*it);
+    }
     uint8_t bitmapS = bitmap1 & bitmap2 & bitmap3;
     int sharedPort = -1;
     if(bitmapS != 0){
@@ -310,7 +314,7 @@ DataModule::sendPacket1(uint16_t addr1, Packet* packet) {
     if(!forwardingPortSet1.empty()){
       
           output(forwardingPortSet1.front()).push(p1);
-          click_chatter("[DataModule] call sendPacket1 function %d", addr1);
+          //click_chatter("[DataModule] call sendPacket1 function %d", addr1);
       }else{
         output(0).push(p1);
       }
@@ -345,16 +349,16 @@ DataModule::sendPacket2(uint16_t shared_addr1, uint16_t shared_addr2, uint16_t a
     dataPacket1->destinationAddr2 = shared_addr2;
     dataPacket1->destinationAddr3 = 0;
     output(sharedPort).push(p1);
-    click_chatter("[DataModule] call sendPacket2 function %d", shared_addr2);
+    //click_chatter("[DataModule] call sendPacket2 function %d", shared_addr2);
     dataPacket2->k_value = 1;
-    dataPacket1->destinationAddr1 = addr3;
+    dataPacket2->destinationAddr1 = addr3;
     dataPacket2->destinationAddr2 = 0;
     dataPacket2->destinationAddr3 = 0;
 
     Vector<uint8_t> forwardingPortSet1 = this->routingTable->lookUpForwardingTable(addr3);
     if(!forwardingPortSet1.empty()){
           output(forwardingPortSet1.front()).push(p2);
-          click_chatter("[DataModule] call sendPacket2 function %d", addr3);
+         // click_chatter("[DataModule] call sendPacket2 function %d", addr3);
       }else{
         output(0).push(p2);
       }
