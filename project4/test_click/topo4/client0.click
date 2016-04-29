@@ -20,36 +20,33 @@ define($dev17 veth17, $addrDev17 aa:81:ae:ae:80:12)
 define($dev18 veth18, $addrDev18 3a:51:b8:e3:a2:cf)
 define($dev19 veth19, $addrDev19 f2:61:c7:e9:37:39)
 define($dev20 veth20, $addrDev20 9a:68:0b:e3:50:de)
+define($dev21 veth21, $addrDev21 ca:13:f6:c6:21:d8)
+define($dev22 veth22, $addrDev22 ae:30:4f:0d:22:a6)
+define($dev23 veth23, $addrDev23 3a:cc:21:5b:5f:fe)
+define($dev24 veth24, $addrDev24 56:02:ed:8c:9a:9c)
+
 
 
 //********************** Test Topology ***********************************
 //
 //
-//                                     [veth4]Router2[veth5] 
-//                                       /		        \
-//                                      /				 \	
-//                                [veth3]			   [veth6]
-// Client0[veth1] -- [veth2]Router1							  Router3[veth7]----[veth8]Client1
-//                                [veth12]			   [veth9]	
-//                                     \				 /
-//                                      \			    /									
-//                                    [veth11]Router4[veth10] 							 [veth18]Client2
-//													 [veth13]							    /
-//														\								   /
-//														 \								[veth17]
-//													  [veth14]Router5[veth15]--[veth16]Router6
-//                                                     					 				[veth19]
-//																							\	
-//																							 \
-//																						   [veth20]Client3
+//                                        ----[veth4]Router2[veth9]--------[veth10]Router5[veth15]---[veth16]Client1 
+//                                       /		                                   [veth21]  
+//                                      /				 				              |
+//                                 [veth3]			                               [veth22]
+// Client0[veth1] -- [veth2]Router1[veth5]----[veth6]Router3[veth11]-------[veth12]Router6[veth17]---[veth18]Client2
+//                                 [veth7]										   [veth23]					
+//									  \				          						  |
+//                                     \										   [veth24]
+//										------[veth8]Router4[veth13]-------[veth14]Router5[veth19]---[veth20]Client3
 //
 // ************************* define access router output link ! 
 //**********************************************************************
 rp0::RouterPort(DEV $dev1, IN_MAC $addrDev1, OUT_MAC $addrDev2)
 
-client0::ClientModule(MY_ADDRESS 100, K 1, OTHER_ADDR1 101, OTHER_ADDR2 102, OTHER_ADDR3 103,DELAY 20, PERIOD 5, TIME_OUT 2)
+//client0::ClientModule(MY_ADDRESS 100, K 1, OTHER_ADDR1 101, OTHER_ADDR2 102, OTHER_ADDR3 103,DELAY 20, PERIOD 5, TIME_OUT 2)
 //client0::ClientModule(MY_ADDRESS 100, K 2, OTHER_ADDR1 101, OTHER_ADDR2 102, OTHER_ADDR3 103,DELAY 20, PERIOD 5, TIME_OUT 2)
-//client0::ClientModule(MY_ADDRESS 100, K 3, OTHER_ADDR1 101, OTHER_ADDR2 102, OTHER_ADDR3 103,DELAY 20, PERIOD 5, TIME_OUT 2)
+client0::ClientModule(MY_ADDRESS 100, K 3, OTHER_ADDR1 101, OTHER_ADDR2 102, OTHER_ADDR3 103,DELAY 20, PERIOD 5, TIME_OUT 2)
 
 rp0->client0->rp0
 
