@@ -65,6 +65,7 @@ DataModule::push(int port, Packet *packet) {
       Vector<uint16_t> Addr = sortCost(this->routingTable, DestAddr1, DestAddr2, DestAddr3);
 
       sendPacket1(Addr.at(0), packet);
+      packet->kill();
   }
 
   if(dataPacket->k_value == 2){
@@ -80,6 +81,7 @@ DataModule::push(int port, Packet *packet) {
             sendPacket1(addr1, packet);
             sendPacket1(addr2, packet);
           }
+          packet->kill();
       }else if(Addr.size() == 3) {
           uint16_t addr1 = Addr.at(0);
           uint16_t addr2 = Addr.at(1);
@@ -133,7 +135,7 @@ DataModule::push(int port, Packet *packet) {
               sendPacket1(addr2, packet);
             }
           }
-
+          packet->kill();
       }else {
           click_chatter("[DataModule] Incompatibale packet, kill !");
           packet->kill();
@@ -152,7 +154,6 @@ DataModule::push(int port, Packet *packet) {
           dataPacket1->destinationAddr2 = DestAddr2;
           dataPacket1->destinationAddr3 = DestAddr3;
           output(sharedPort).push(p1);
-          packet->kill();
 
        } else {
           int sharedPort12 = checkSharedPort(DestAddr1, DestAddr2);
@@ -171,6 +172,7 @@ DataModule::push(int port, Packet *packet) {
               sendPacket1(DestAddr3, packet);
           }
        }
+       packet->kill();
   }
 
 
@@ -306,11 +308,13 @@ DataModule::sendPacket1(uint16_t addr1, Packet* packet) {
     dataPacket1->destinationAddr3 = 0;
     Vector<uint8_t> forwardingPortSet1 = this->routingTable->lookUpForwardingTable(addr1);
     if(!forwardingPortSet1.empty()){
+      
           output(forwardingPortSet1.front()).push(p1);
+          click_chatter("[DataModule] call sendPacket1 function %d", addr1);
       }else{
         output(0).push(p1);
       }
-  packet->kill();
+  //packet->kill();
 }
 
 
@@ -324,7 +328,7 @@ DataModule::sendPacket1(uint16_t shared_addr1, uint16_t shared_addr2, int shared
     dataPacket1->destinationAddr2 = shared_addr2;
     dataPacket1->destinationAddr3 = 0;
     output(sharedPort).push(p1);
-  packet->kill();
+  //packet->kill();
 }
 
 
@@ -341,7 +345,7 @@ DataModule::sendPacket2(uint16_t shared_addr1, uint16_t shared_addr2, uint16_t a
     dataPacket1->destinationAddr2 = shared_addr2;
     dataPacket1->destinationAddr3 = 0;
     output(sharedPort).push(p1);
-
+    click_chatter("[DataModule] call sendPacket2 function %d", shared_addr2);
     dataPacket2->k_value = 1;
     dataPacket1->destinationAddr1 = addr3;
     dataPacket2->destinationAddr2 = 0;
@@ -350,11 +354,12 @@ DataModule::sendPacket2(uint16_t shared_addr1, uint16_t shared_addr2, uint16_t a
     Vector<uint8_t> forwardingPortSet1 = this->routingTable->lookUpForwardingTable(addr3);
     if(!forwardingPortSet1.empty()){
           output(forwardingPortSet1.front()).push(p2);
+          click_chatter("[DataModule] call sendPacket2 function %d", addr3);
       }else{
         output(0).push(p2);
       }
 
-  packet->kill();
+  //packet->kill();
 }
 
 
